@@ -1,0 +1,252 @@
+{
+  "modules": [
+    {
+      "id": "mod_beginner",
+      "level": "Beginner",
+      "title": "Beginner SQL Foundations",
+      "description": "Master relational database basics, SELECT projections, WHERE filtering, ordering, and aggregation.",
+      "lessons": [
+        {
+          "id": "lesson_1",
+          "title": "Introduction to Relational Databases & SELECT",
+          "database": "student_management",
+          "concept": "A relational database organizes data into tables consisting of rows and columns. The SELECT statement retrieves columns from a table.",
+          "syntax": "SELECT column1, column2 FROM table_name;",
+          "example": "SELECT id, name FROM students;",
+          "expectedOutput": "List of student IDs and their corresponding names.",
+          "exercisePrompt": "Write a query to retrieve all columns from the students table.",
+          "starterSql": "SELECT * FROM students;",
+          "solutionSql": "SELECT * FROM students;",
+          "hints": [
+            "Use the asterisk (*) symbol to select all columns.",
+            "Make sure to specify FROM students;"
+          ]
+        },
+        {
+          "id": "lesson_2",
+          "title": "Filtering Records with WHERE & Comparison Operators",
+          "database": "student_management",
+          "concept": "The WHERE clause filters records based on boolean conditions such as =, >, <, >=, <=, and <>.",
+          "syntax": "SELECT column1 FROM table_name WHERE condition;",
+          "example": "SELECT name, marks FROM students WHERE marks >= 80;",
+          "expectedOutput": "Students with marks 80 or above.",
+          "exercisePrompt": "Find all students who have marks strictly greater than 75.",
+          "starterSql": "SELECT name, marks FROM students WHERE ",
+          "solutionSql": "SELECT name, marks FROM students WHERE marks > 75;",
+          "hints": [
+            "Use the comparison operator > with 75.",
+            "Select name and marks."
+          ]
+        },
+        {
+          "id": "lesson_3",
+          "title": "Sorting and Limiting with ORDER BY & LIMIT",
+          "database": "student_management",
+          "concept": "ORDER BY sorts the returned records in ASC (ascending) or DESC (descending) order. LIMIT restricts the number of rows returned.",
+          "syntax": "SELECT column1 FROM table_name ORDER BY column1 DESC LIMIT n;",
+          "example": "SELECT name, marks FROM students ORDER BY marks DESC LIMIT 3;",
+          "expectedOutput": "Top 3 students with highest marks.",
+          "exercisePrompt": "Select the top 2 students sorted alphabetically by name.",
+          "starterSql": "SELECT name FROM students ORDER BY name ASC LIMIT 2;",
+          "solutionSql": "SELECT name FROM students ORDER BY name ASC LIMIT 2;",
+          "hints": [
+            "Use ORDER BY name ASC",
+            "Add LIMIT 2 at the end"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mod_intermediate",
+      "level": "Intermediate",
+      "title": "Joins, Aggregations & Subqueries",
+      "description": "Connect related tables with INNER and LEFT JOINs, calculate summary metrics with GROUP BY and HAVING.",
+      "lessons": [
+        {
+          "id": "lesson_4",
+          "title": "Connecting Tables with INNER JOIN",
+          "database": "student_management",
+          "concept": "An INNER JOIN selects records that have matching values in both tables based on a foreign key relationship.",
+          "syntax": "SELECT t1.col, t2.col FROM table1 t1 INNER JOIN table2 t2 ON t1.id = t2.ref_id;",
+          "example": "SELECT s.name, c.title FROM students s INNER JOIN enrolments e ON s.id = e.student_id INNER JOIN courses c ON c.id = e.course_id;",
+          "expectedOutput": "Student names paired with the title of each course they are taking.",
+          "exercisePrompt": "Select student name and their enrolment term by joining students and enrolments.",
+          "starterSql": "SELECT s.name, e.term FROM students s INNER JOIN enrolments e ON s.id = e.student_id;",
+          "solutionSql": "SELECT s.name, e.term FROM students s INNER JOIN enrolments e ON s.id = e.student_id;",
+          "hints": [
+            "Join enrolments on s.id = e.student_id",
+            "Project s.name and e.term"
+          ]
+        },
+        {
+          "id": "lesson_5",
+          "title": "Summarizing Data with GROUP BY & HAVING",
+          "database": "employee_management",
+          "concept": "GROUP BY aggregates rows that have the same values into summary rows. HAVING filters groups after aggregation.",
+          "syntax": "SELECT category, COUNT(*), AVG(val) FROM table GROUP BY category HAVING COUNT(*) > 1;",
+          "example": "SELECT department_id, COUNT(*) as count, AVG(salary) as avg_sal FROM employees GROUP BY department_id;",
+          "expectedOutput": "Number of employees and average salary per department.",
+          "exercisePrompt": "List department_id and average salary for departments with average salary above 80000.",
+          "starterSql": "SELECT department_id, AVG(salary) as avg_sal FROM employees GROUP BY department_id HAVING AVG(salary) > 80000;",
+          "solutionSql": "SELECT department_id, AVG(salary) as avg_sal FROM employees GROUP BY department_id HAVING AVG(salary) > 80000;",
+          "hints": [
+            "Group by department_id",
+            "Use HAVING AVG(salary) > 80000"
+          ]
+        },
+        {
+          "id": "lesson_6",
+          "title": "Subqueries and Nested Expressions",
+          "database": "employee_management",
+          "concept": "A subquery is a query nested inside another query, used in WHERE clauses or column projections.",
+          "syntax": "SELECT col FROM table WHERE val > (SELECT AVG(val) FROM table);",
+          "example": "SELECT name, salary FROM employees WHERE salary > (SELECT AVG(salary) FROM employees);",
+          "expectedOutput": "Employees whose salary is higher than the overall company average.",
+          "exercisePrompt": "Find employees who earn more than the overall average salary.",
+          "starterSql": "SELECT name, salary FROM employees WHERE salary > (SELECT AVG(salary) FROM employees);",
+          "solutionSql": "SELECT name, salary FROM employees WHERE salary > (SELECT AVG(salary) FROM employees);",
+          "hints": [
+            "Use (SELECT AVG(salary) FROM employees) as the comparator in the WHERE clause."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mod_advanced",
+      "level": "Advanced",
+      "title": "Advanced SQL & Performance",
+      "description": "Common Table Expressions (CTEs), Window Functions, Indexing strategies, and Transactions.",
+      "lessons": [
+        {
+          "id": "lesson_7",
+          "title": "Common Table Expressions (WITH Clause)",
+          "database": "ecommerce",
+          "concept": "Common Table Expressions (CTEs) define temporary named result sets that can be referenced within a SELECT, INSERT, UPDATE, or DELETE statement.",
+          "syntax": "WITH cte_name AS (SELECT ...) SELECT * FROM cte_name;",
+          "example": "WITH HighSpenders AS (SELECT customer_id, SUM(total_cents) as spent FROM orders GROUP BY customer_id) SELECT * FROM HighSpenders WHERE spent > 50000;",
+          "expectedOutput": "Customers who have spent more than $500 total.",
+          "exercisePrompt": "Create a CTE to calculate total order revenue per customer.",
+          "starterSql": "WITH CustomerRevenue AS (SELECT customer_id, SUM(total_cents) as revenue FROM orders GROUP BY customer_id) SELECT * FROM CustomerRevenue;",
+          "solutionSql": "WITH CustomerRevenue AS (SELECT customer_id, SUM(total_cents) as revenue FROM orders GROUP BY customer_id) SELECT * FROM CustomerRevenue;",
+          "hints": [
+            "Start with WITH CustomerRevenue AS (...)",
+            "Query the CTE with SELECT * FROM CustomerRevenue;"
+          ]
+        },
+        {
+          "id": "lesson_8",
+          "title": "Window Functions (RANK, ROW_NUMBER)",
+          "database": "employee_management",
+          "concept": "Window functions perform calculations across a set of table rows that are related to the current row, without collapsing rows like GROUP BY.",
+          "syntax": "SELECT col, RANK() OVER (PARTITION BY dept ORDER BY salary DESC) FROM employees;",
+          "example": "SELECT name, salary, department_id, RANK() OVER (PARTITION BY department_id ORDER BY salary DESC) as rank FROM employees;",
+          "expectedOutput": "Employees ranked by salary within their respective departments.",
+          "exercisePrompt": "Select employee name, salary and row number ordered by salary descending.",
+          "starterSql": "SELECT name, salary, ROW_NUMBER() OVER (ORDER BY salary DESC) as row_num FROM employees;",
+          "solutionSql": "SELECT name, salary, ROW_NUMBER() OVER (ORDER BY salary DESC) as row_num FROM employees;",
+          "hints": [
+            "Use ROW_NUMBER() OVER (ORDER BY salary DESC)"
+          ]
+        },
+        {
+          "id": "lesson_9",
+          "title": "Transactions & ACID Guarantees",
+          "database": "ecommerce",
+          "concept": "Transactions bundle multiple database operations into an atomic unit with COMMIT and ROLLBACK.",
+          "syntax": "BEGIN TRANSACTION; UPDATE ...; INSERT ...; COMMIT;",
+          "example": "BEGIN TRANSACTION; UPDATE products SET stock_quantity = stock_quantity - 1 WHERE id = 1; COMMIT;",
+          "expectedOutput": "Stock level updated atomically.",
+          "exercisePrompt": "Inspect product inventory and simulate atomic stock verification.",
+          "starterSql": "SELECT id, title, stock_quantity FROM products WHERE stock_quantity > 0;",
+          "solutionSql": "SELECT id, title, stock_quantity FROM products WHERE stock_quantity > 0;",
+          "hints": [
+            "Verify product stock before executing checkout transactions."
+          ]
+        }
+      ]
+    }
+  ],
+  "challenges": [
+    {
+      "id": "chal_1",
+      "difficulty": "Beginner",
+      "title": "High Honor Roll Students",
+      "database": "student_management",
+      "description": "Find all students who scored above 85 marks. Order them from highest marks to lowest marks.",
+      "starterSql": "SELECT name, marks FROM students WHERE ...",
+      "solutionSql": "SELECT name, marks FROM students WHERE marks > 85 ORDER BY marks DESC;",
+      "hints": [
+        "Use WHERE marks > 85",
+        "Use ORDER BY marks DESC"
+      ]
+    },
+    {
+      "id": "chal_2",
+      "difficulty": "Beginner",
+      "title": "Active Books Catalogue",
+      "database": "library_management",
+      "description": "Select the title and isbn of all books published in year 1925 or later, sorted by title alphabetically.",
+      "starterSql": "SELECT title, isbn FROM books WHERE ...",
+      "solutionSql": "SELECT title, isbn FROM books WHERE publication_year >= 1925 ORDER BY title ASC;",
+      "hints": [
+        "Filter using publication_year >= 1925",
+        "Sort with ORDER BY title ASC"
+      ]
+    },
+    {
+      "id": "chal_3",
+      "difficulty": "Intermediate",
+      "title": "Course Enrolment Roster",
+      "database": "student_management",
+      "description": "List each student's name, the title of the course they are enrolled in, and the enrolment term. Order by student name ascending.",
+      "starterSql": "SELECT s.name, c.title, e.term FROM students s ...",
+      "solutionSql": "SELECT s.name, c.title, e.term FROM students s INNER JOIN enrolments e ON s.id = e.student_id INNER JOIN courses c ON c.id = e.course_id ORDER BY s.name ASC;",
+      "hints": [
+        "Join students with enrolments on s.id = e.student_id",
+        "Join courses on c.id = e.course_id",
+        "Order by s.name ASC"
+      ]
+    },
+    {
+      "id": "chal_4",
+      "difficulty": "Intermediate",
+      "title": "Highest Earning Managers",
+      "database": "employee_management",
+      "description": "Find all employees who have a salary of 90000 or greater and have a non-null department. Return their name, salary, and department_id ordered by salary descending.",
+      "starterSql": "SELECT name, salary, department_id FROM employees WHERE ...",
+      "solutionSql": "SELECT name, salary, department_id FROM employees WHERE salary >= 90000 AND department_id IS NOT NULL ORDER BY salary DESC;",
+      "hints": [
+        "Check salary >= 90000",
+        "Check department_id IS NOT NULL"
+      ]
+    },
+    {
+      "id": "chal_5",
+      "difficulty": "Advanced",
+      "title": "Customer Lifetime Expenditure",
+      "database": "ecommerce",
+      "description": "Calculate each customer's total expenditure in dollars (convert total_cents / 100.0). Return customer full_name and total_spent rounded to 2 decimal places, ordered by total_spent descending.",
+      "starterSql": "SELECT c.full_name, ROUND(SUM(o.total_cents) / 100.0, 2) as total_spent FROM customers c ...",
+      "solutionSql": "SELECT c.full_name, ROUND(SUM(o.total_cents) / 100.0, 2) as total_spent FROM customers c INNER JOIN orders o ON c.id = o.customer_id GROUP BY c.id ORDER BY total_spent DESC;",
+      "hints": [
+        "Join customers with orders on c.id = o.customer_id",
+        "GROUP BY c.id",
+        "Order by total_spent DESC"
+      ]
+    },
+    {
+      "id": "chal_6",
+      "difficulty": "Advanced",
+      "title": "Overdue & Unreturned Loans",
+      "database": "library_management",
+      "description": "List all active loans where returned_on IS NULL. Return member full_name, book title, and loaned_on date, ordered by loaned_on ascending.",
+      "starterSql": "SELECT m.full_name, b.title, l.loaned_on FROM loans l ...",
+      "solutionSql": "SELECT m.full_name, b.title, l.loaned_on FROM loans l INNER JOIN members m ON l.member_id = m.id INNER JOIN books b ON l.book_id = b.id WHERE l.returned_on IS NULL ORDER BY l.loaned_on ASC;",
+      "hints": [
+        "Join loans with members and books",
+        "Filter where l.returned_on IS NULL",
+        "Order by l.loaned_on ASC"
+      ]
+    }
+  ]
+}

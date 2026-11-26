@@ -1,0 +1,276 @@
+[
+  {
+    "id": "student_management",
+    "title": "Student Management",
+    "category": "Education",
+    "icon": "GraduationCap",
+    "description": "Students, courses and academic enrolments.",
+    "color": "teal",
+    "tables": [
+      {
+        "name": "students",
+        "definition": "id INTEGER PRIMARY KEY, name TEXT NOT NULL, marks INTEGER NOT NULL",
+        "rows": [
+          [
+            1,
+            "Aisha Rao",
+            92
+          ],
+          [
+            2,
+            "Miles Chen",
+            84
+          ],
+          [
+            3,
+            "Anika Bose",
+            78
+          ],
+          [
+            4,
+            "Samir Khan",
+            96
+          ]
+        ]
+      },
+      {
+        "name": "courses",
+        "definition": "id INTEGER PRIMARY KEY, title TEXT NOT NULL",
+        "rows": [
+          [
+            1,
+            "Database Systems"
+          ],
+          [
+            2,
+            "Applied Mathematics"
+          ]
+        ]
+      },
+      {
+        "name": "enrolments",
+        "definition": "student_id INTEGER REFERENCES students(id), course_id INTEGER REFERENCES courses(id), term TEXT, PRIMARY KEY(student_id,course_id,term)",
+        "rows": [
+          [
+            1,
+            1,
+            "Autumn"
+          ],
+          [
+            1,
+            2,
+            "Autumn"
+          ],
+          [
+            2,
+            1,
+            "Autumn"
+          ],
+          [
+            3,
+            2,
+            "Autumn"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "employee_management",
+    "title": "Employee Management",
+    "category": "People",
+    "icon": "BriefcaseBusiness",
+    "description": "Teams, reporting lines and employee salaries.",
+    "color": "violet",
+    "tables": [
+      {
+        "name": "departments",
+        "definition": "id INTEGER PRIMARY KEY, name TEXT NOT NULL",
+        "rows": [
+          [
+            1,
+            "Engineering"
+          ],
+          [
+            2,
+            "Design"
+          ],
+          [
+            3,
+            "Operations"
+          ]
+        ]
+      },
+      {
+        "name": "employees",
+        "definition": "id INTEGER PRIMARY KEY, name TEXT, department_id INTEGER REFERENCES departments(id), manager_id INTEGER REFERENCES employees(id), salary INTEGER",
+        "rows": [
+          [
+            1,
+            "Mira Dev",
+            1,
+            null,
+            86000
+          ],
+          [
+            2,
+            "Leo Park",
+            1,
+            1,
+            72000
+          ],
+          [
+            3,
+            "Iris Lim",
+            2,
+            null,
+            78000
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "ecommerce",
+    "title": "E-commerce",
+    "category": "Commerce",
+    "icon": "ShoppingBag",
+    "description": "Customers, products and order line items.",
+    "color": "orange",
+    "tables": [
+      {
+        "name": "customers",
+        "definition": "id INTEGER PRIMARY KEY, name TEXT",
+        "rows": [
+          [
+            1,
+            "Ravi Sen"
+          ],
+          [
+            2,
+            "Nora Roy"
+          ]
+        ]
+      },
+      {
+        "name": "products",
+        "definition": "id INTEGER PRIMARY KEY, name TEXT, price_cents INTEGER",
+        "rows": [
+          [
+            1,
+            "Notebook",
+            900
+          ],
+          [
+            2,
+            "Desk lamp",
+            3200
+          ]
+        ]
+      },
+      {
+        "name": "orders",
+        "definition": "id INTEGER PRIMARY KEY, customer_id INTEGER REFERENCES customers(id), ordered_on TEXT",
+        "rows": [
+          [
+            1,
+            1,
+            "2026-09-10"
+          ]
+        ]
+      },
+      {
+        "name": "order_items",
+        "definition": "order_id INTEGER REFERENCES orders(id), product_id INTEGER REFERENCES products(id), quantity INTEGER, unit_price_cents INTEGER, PRIMARY KEY(order_id, product_id)",
+        "rows": [
+          [
+            1,
+            1,
+            3,
+            900
+          ],
+          [
+            1,
+            2,
+            1,
+            3200
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "library_management",
+    "title": "Library Management",
+    "category": "Library",
+    "icon": "BookOpen",
+    "description": "Titles, authors, members and book loans.",
+    "color": "blue",
+    "tables": [
+      {
+        "name": "authors",
+        "definition": "id INTEGER PRIMARY KEY, name TEXT",
+        "rows": [
+          [
+            1,
+            "Lina Shah"
+          ],
+          [
+            2,
+            "Owen Ray"
+          ]
+        ]
+      },
+      {
+        "name": "books",
+        "definition": "id INTEGER PRIMARY KEY, title TEXT, author_id INTEGER REFERENCES authors(id)",
+        "rows": [
+          [
+            1,
+            "The Quiet Index",
+            1
+          ],
+          [
+            2,
+            "Beyond the Archive",
+            2
+          ]
+        ]
+      },
+      {
+        "name": "members",
+        "definition": "id INTEGER PRIMARY KEY, name TEXT",
+        "rows": [
+          [
+            1,
+            "Alex Das"
+          ],
+          [
+            2,
+            "Eli Tan"
+          ]
+        ]
+      },
+      {
+        "name": "loans",
+        "definition": "id INTEGER PRIMARY KEY, book_id INTEGER REFERENCES books(id), member_id INTEGER REFERENCES members(id), loaned_on TEXT, returned_on TEXT",
+        "rows": [
+          [
+            1,
+            1,
+            2,
+            "2026-10-01",
+            null
+          ],
+          [
+            2,
+            2,
+            1,
+            "2026-09-01",
+            "2026-09-15"
+          ]
+        ]
+      }
+    ]
+  }
+]
