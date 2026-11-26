@@ -1,0 +1,33 @@
+# Deployment and compatibility plan
+
+## Stack decision record · 26 November 2026
+
+A strict dependency-resolution dry run used npm 11.19.1 on Node 26.8.2 in a temporary directory. The initial Swagger React wrapper pulled a transitive peer limited to React 18. The revised set resolved successfully with strict peer and engine checks. Serve standalone Swagger UI assets from the same origin and keep the OpenAPI document in Git. The check established package resolution. Phase 1 still needs a lockfile, an actual Linux Vercel build and a runtime smoke test.
+
+| Area | Resolution or provider constraint | Decision and evidence still needed |
+| --- | --- | --- |
+| Framework | Next 16.4.6, React/React DOM 19.3.1 and matching eslint-config-next resolved. Vercel lists Node 26.x. | Pin Node 26.x in package metadata, use App Router and Node route handlers, run ESLint directly. |
+| UI | Tailwind and its PostCSS integration 4.3.5, shadcn CLI 4.23.1, Lucide React 1.80.0 and Monaco 0.58.0 resolved. | Generate only the shadcn primitives used. Lazy-load self-hosted editor assets and verify a mobile plain-text fallback. |
+| Data/API | Supabase JS 2.119.2, Supabase SSR 0.12.7, Zod 4.6.7 and swagger-ui-dist 5.36.0 resolved. | Lock exact dependencies during scaffold. Keep Swagger auth in memory and disable external spec validators for private deployment URLs. |
+| SQLite | @sqlite.org/sqlite-wasm 3.54.1-build1 resolved. | Trace worker and WASM assets explicitly into Vercel output, verify authorizer, bounded memory, progress hook, deadline and serialization. Package resolution alone cannot prove these runtime properties. |
+
+Sources for framework and runtime decisions are the [Next.js installation guide](https://nextjs.org/docs/app/getting-started/installation), [shadcn Tailwind support](https://ui.shadcn.com/docs/tailwind-v4), [Monaco project](https://github.com/microsoft/monaco-editor), [SQLite WASM package](https://github.com/sqlite/sqlite-wasm) and [Vercel Node versions](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions).
+
+## Free-tier operating plan
+
+- **Vercel Hobby.** Use an individual noncommercial deployment. The 4.5 MB function payload limit supports small SQL requests and bounded result pages. Include the WASM and worker in the function trace and keep client bundles separate. Hobby cron permits daily runs; use Supabase scheduling for minute-scale retries. Verify cold starts and actual function duration on preview. [Hobby plan](https://vercel.com/docs/plans/hobby) · [Function limits](https://vercel.com/docs/functions/limitations) · [Cron limits](https://vercel.com/docs/cron-jobs/usage-and-pricing)
+- **Supabase Free.** Published allowances include 500 MB per database, 1 GB file storage and 5 GB egress. Low-activity free projects can pause after seven days. Cap and expire practice images, aggregate usage and prune logs. Check the project and restore if paused in advance of evaluation. Use hosted GitHub OAuth registration through Supabase Auth for the initial public sign-in flow. Default SMTP has recipient restrictions. If public email/password registration is enabled, provision and test custom SMTP first. [Pricing](https://supabase.com/pricing) · [Project pausing](https://supabase.com/docs/guides/platform/free-project-pausing) · [Auth mail](https://supabase.com/docs/guides/auth/auth-smtp) · [GitHub sign-in](https://supabase.com/docs/guides/auth/social-login/auth-github)
+- **Gemini Developer API.** Candidate `GEMINI_MODEL=gemini-3.1-flash-lite` appears in Google's model, deprecation and free input/output pricing tables. Keep model selection explicit. Confirm the actual Google project lists the model with generateContent support and returns a schema-valid answer. Check AI Studio's project-specific minute, token and daily limits before setting budgets. Free-tier content may be used for product improvement. Explain the data flow in the UI and keep examples synthetic. [Models](https://ai.google.dev/gemini-api/docs/models) · [Pricing](https://ai.google.dev/gemini-api/docs/pricing#gemini-3.1-flash-lite) · [Lifecycle](https://ai.google.dev/gemini-api/docs/deprecations) · [Rate limits](https://ai.google.dev/gemini-api/docs/rate-limits) · [Structured output](https://ai.google.dev/gemini-api/docs/structured-output)
+- **Delivery scheduling.** Supabase Cron with pg_net and Vault can invoke a fixed HTTPS handler. Schedule one bounded dispatch batch per minute, guarded by a secret and leases. A user-triggered test can claim an already-persisted job for prompt feedback. Pause background work for inactive preview environments. Record actual tick latency and compute usage. [Supabase scheduled HTTP invocations](https://supabase.com/docs/guides/functions/schedule-functions)
+
+## Release sequence
+
+1. Create separate Supabase environments for evaluation and development (local development is sufficient). Apply versioned migrations and deterministic catalogue seeds. Check schema versions, RLS, grants and test users.
+2. Configure Supabase Auth provider, authorized callback and app return URLs for the intended deployment. Register a fresh non-owner account in the release check.
+3. Configure server-only Gemini API key/model, restricted database credentials, webhook encryption key/version and a distinct dispatch credential. Add public Supabase URL/key and application origin. Phase 1 supplies a placeholder-only .env.example and typed validation.
+4. Deploy the locked commit with Vercel CLI or an authorized personal source repository. Set the build to npm run build with the pinned Node major. Configure preview and production secrets independently. University submission has its own faculty approval and access dependency.
+5. Enable the fixed scheduler endpoint via Vault. Register an evaluator-controlled public HTTPS receiver. Check a delivered signed event, a failed attempt and a retry across independent invocations.
+6. Validate public readiness, signup, Gemini generation, persisted sandbox writes, external bearer scopes, quota rejection and receiver receipt. Record URL, deployment ID, commit, UTC timestamp and redacted evidence. Run the four quality scripts against that same commit.
+7. If readiness fails, check migration version and server configuration. For AI errors, check the model listing, project quota and timeout. For delayed events inspect due rows, scheduler executions and lease expiry. For missing workers inspect deployment trace assets. Revert to a verified deployment if needed and keep DB changes backward compatible.
+
+Account access, project-specific quotas, regional availability, callback DNS/TLS and delivery on the deployed infrastructure require live verification during implementation.

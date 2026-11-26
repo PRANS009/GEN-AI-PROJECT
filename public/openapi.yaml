@@ -1,0 +1,1242 @@
+openapi: 3.1.0
+info:
+  title: SQL Studio AI
+  version: 0.1.0
+  description: Phase 0 design contract for the BTIN337 project. Operations target the current deployment origin.
+servers:
+- url: /
+security:
+- DeveloperKey: []
+paths:
+  /api/v1/generate:
+    post:
+      operationId: generate
+      summary: Generate SQL or ask for clarification
+      description: Generate SQL or ask for clarification
+      x-required-scope: ai:use
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateInput'
+      responses:
+        '200':
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: true
+                  requestId:
+                    type: string
+                    format: uuid
+                  data:
+                    $ref: '#/components/schemas/Assistant'
+                required:
+                - success
+                - requestId
+                - data
+                additionalProperties: false
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '429':
+          $ref: '#/components/responses/E429'
+        '500':
+          $ref: '#/components/responses/E500'
+        '503':
+          $ref: '#/components/responses/E503'
+  /api/v1/explain:
+    post:
+      operationId: explain
+      summary: Explain a query clause by clause
+      description: Explain a query clause by clause
+      x-required-scope: ai:use
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryInput'
+      responses:
+        '200':
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: true
+                  requestId:
+                    type: string
+                    format: uuid
+                  data:
+                    $ref: '#/components/schemas/Assistant'
+                required:
+                - success
+                - requestId
+                - data
+                additionalProperties: false
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '429':
+          $ref: '#/components/responses/E429'
+        '500':
+          $ref: '#/components/responses/E500'
+        '503':
+          $ref: '#/components/responses/E503'
+  /api/v1/fix:
+    post:
+      operationId: fix
+      summary: Propose a corrected query
+      description: Propose a corrected query
+      x-required-scope: ai:use
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FixInput'
+      responses:
+        '200':
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: true
+                  requestId:
+                    type: string
+                    format: uuid
+                  data:
+                    $ref: '#/components/schemas/Assistant'
+                required:
+                - success
+                - requestId
+                - data
+                additionalProperties: false
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '429':
+          $ref: '#/components/responses/E429'
+        '500':
+          $ref: '#/components/responses/E500'
+        '503':
+          $ref: '#/components/responses/E503'
+  /api/v1/optimize:
+    post:
+      operationId: optimize
+      summary: Suggest a query optimization
+      description: Suggest a query optimization
+      x-required-scope: ai:use
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryInput'
+      responses:
+        '200':
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: true
+                  requestId:
+                    type: string
+                    format: uuid
+                  data:
+                    $ref: '#/components/schemas/Assistant'
+                required:
+                - success
+                - requestId
+                - data
+                additionalProperties: false
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '429':
+          $ref: '#/components/responses/E429'
+        '500':
+          $ref: '#/components/responses/E500'
+        '503':
+          $ref: '#/components/responses/E503'
+  /api/v1/execute:
+    post:
+      operationId: execute
+      summary: Execute SQL in an isolated practice database
+      description: Fresh seed without sessionId. For persisted writes supply sessionId, expectedRevision and
+        confirmWrites. The result grid describes the last statement. rowCount counts returned rows.
+      x-required-scope: sql:execute
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: false
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExecuteInput'
+      responses:
+        '200':
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: true
+                  requestId:
+                    type: string
+                    format: uuid
+                  data:
+                    $ref: '#/components/schemas/Execution'
+                required:
+                - success
+                - requestId
+                - data
+                additionalProperties: false
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '409':
+          $ref: '#/components/responses/E409'
+        '429':
+          $ref: '#/components/responses/E429'
+        '500':
+          $ref: '#/components/responses/E500'
+        '503':
+          $ref: '#/components/responses/E503'
+  /api/v1/schema:
+    get:
+      operationId: getSchema
+      summary: Inspect the selected practice schema
+      description: Inspect the selected practice schema
+      x-required-scope: schema:read
+      parameters:
+      - name: database
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/Database'
+      - name: sessionId
+        in: query
+        required: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: true
+                  requestId:
+                    type: string
+                    format: uuid
+                  data:
+                    $ref: '#/components/schemas/Schema'
+                required:
+                - success
+                - requestId
+                - data
+                additionalProperties: false
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '429':
+          $ref: '#/components/responses/E429'
+        '500':
+          $ref: '#/components/responses/E500'
+        '503':
+          $ref: '#/components/responses/E503'
+  /api/v1/history:
+    get:
+      operationId: getHistory
+      summary: Read the caller's execution history
+      description: Read the caller's execution history
+      x-required-scope: history:read
+      parameters:
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 512
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+      responses:
+        '200':
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: true
+                  requestId:
+                    type: string
+                    format: uuid
+                  data:
+                    $ref: '#/components/schemas/History'
+                required:
+                - success
+                - requestId
+                - data
+                additionalProperties: false
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '429':
+          $ref: '#/components/responses/E429'
+        '500':
+          $ref: '#/components/responses/E500'
+        '503':
+          $ref: '#/components/responses/E503'
+  /api/v1/lessons:
+    get:
+      operationId: getLessons
+      summary: Read the curriculum and personal progress
+      description: Read the curriculum and personal progress
+      x-required-scope: learning:read
+      parameters:
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 512
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+      - name: level
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/Level'
+      responses:
+        '200':
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: true
+                  requestId:
+                    type: string
+                    format: uuid
+                  data:
+                    $ref: '#/components/schemas/Lessons'
+                required:
+                - success
+                - requestId
+                - data
+                additionalProperties: false
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '429':
+          $ref: '#/components/responses/E429'
+        '500':
+          $ref: '#/components/responses/E500'
+        '503':
+          $ref: '#/components/responses/E503'
+  /api/v1/challenges/submit:
+    post:
+      operationId: submitChallenge
+      summary: Grade a solution on isolated fixtures
+      description: Grade a solution on isolated fixtures
+      x-required-scope: challenges:submit
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: false
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitInput'
+      responses:
+        '200':
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: true
+                  requestId:
+                    type: string
+                    format: uuid
+                  data:
+                    $ref: '#/components/schemas/Submission'
+                required:
+                - success
+                - requestId
+                - data
+                additionalProperties: false
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '409':
+          $ref: '#/components/responses/E409'
+        '429':
+          $ref: '#/components/responses/E429'
+        '500':
+          $ref: '#/components/responses/E500'
+        '503':
+          $ref: '#/components/responses/E503'
+  /api/v1/sessions:
+    post:
+      operationId: createSession
+      summary: Create a private practice session
+      description: Create a private practice session
+      x-required-scope: sql:execute
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: false
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewSession'
+      responses:
+        '201':
+          description: Created.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: true
+                  requestId:
+                    type: string
+                    format: uuid
+                  data:
+                    $ref: '#/components/schemas/Session'
+                required:
+                - success
+                - requestId
+                - data
+                additionalProperties: false
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '409':
+          $ref: '#/components/responses/E409'
+        '429':
+          $ref: '#/components/responses/E429'
+        '500':
+          $ref: '#/components/responses/E500'
+        '503':
+          $ref: '#/components/responses/E503'
+  /api/v1/sessions/{id}/reset:
+    post:
+      operationId: resetSession
+      summary: Reset an owned session to its seed
+      description: Reset an owned session to its seed
+      x-required-scope: sql:execute
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: Idempotency-Key
+        in: header
+        required: false
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetInput'
+      responses:
+        '200':
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: true
+                  requestId:
+                    type: string
+                    format: uuid
+                  data:
+                    $ref: '#/components/schemas/Session'
+                required:
+                - success
+                - requestId
+                - data
+                additionalProperties: false
+        '400':
+          $ref: '#/components/responses/E400'
+        '401':
+          $ref: '#/components/responses/E401'
+        '403':
+          $ref: '#/components/responses/E403'
+        '404':
+          $ref: '#/components/responses/E404'
+        '409':
+          $ref: '#/components/responses/E409'
+        '429':
+          $ref: '#/components/responses/E429'
+        '500':
+          $ref: '#/components/responses/E500'
+        '503':
+          $ref: '#/components/responses/E503'
+  /api/health:
+    get:
+      operationId: health
+      summary: Check deployment readiness
+      description: Check deployment readiness
+      security: []
+      responses:
+        '200':
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    const: true
+                  requestId:
+                    type: string
+                    format: uuid
+                  data:
+                    $ref: '#/components/schemas/Health'
+                required:
+                - success
+                - requestId
+                - data
+                additionalProperties: false
+        '503':
+          $ref: '#/components/responses/E503'
+components:
+  schemas:
+    Database:
+      type: string
+      enum:
+      - student_management
+      - employee_management
+      - ecommerce
+      - library_management
+    Level:
+      type: string
+      enum:
+      - beginner
+      - intermediate
+      - advanced
+    Cell:
+      oneOf:
+      - type: 'null'
+      - type: number
+      - type: string
+      - type: object
+        properties:
+          integer:
+            type: string
+            pattern: ^-?[0-9]+$
+        required:
+        - integer
+        additionalProperties: false
+      - type: object
+        properties:
+          base64:
+            type: string
+        required:
+        - base64
+        additionalProperties: false
+      description: Use tagged decimal strings for integers outside the JSON safe range, and tagged base64
+        for binary cells.
+    Grid:
+      type: object
+      properties:
+        columns:
+          type: array
+          items:
+            type: string
+        rows:
+          type: array
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/Cell'
+        truncated:
+          type: boolean
+      required:
+      - columns
+      - rows
+      - truncated
+      additionalProperties: false
+    GenerateInput:
+      type: object
+      properties:
+        database:
+          $ref: '#/components/schemas/Database'
+        dialect:
+          type: string
+          enum:
+          - sqlite
+        sessionId:
+          type: string
+          format: uuid
+        conversationId:
+          type: string
+          format: uuid
+        prompt:
+          type: string
+          minLength: 1
+          maxLength: 4000
+      required:
+      - database
+      - prompt
+      additionalProperties: false
+    QueryInput:
+      type: object
+      properties:
+        database:
+          $ref: '#/components/schemas/Database'
+        dialect:
+          type: string
+          enum:
+          - sqlite
+        sessionId:
+          type: string
+          format: uuid
+        conversationId:
+          type: string
+          format: uuid
+        sql:
+          type: string
+          minLength: 1
+          maxLength: 16384
+      required:
+      - database
+      - sql
+      additionalProperties: false
+    FixInput:
+      type: object
+      properties:
+        database:
+          $ref: '#/components/schemas/Database'
+        dialect:
+          type: string
+          enum:
+          - sqlite
+        sessionId:
+          type: string
+          format: uuid
+        conversationId:
+          type: string
+          format: uuid
+        sql:
+          type: string
+          minLength: 1
+          maxLength: 16384
+        error:
+          type: string
+          minLength: 1
+          maxLength: 2000
+      required:
+      - database
+      - sql
+      additionalProperties: false
+    Assistant:
+      type: object
+      properties:
+        conversationId:
+          type: string
+          format: uuid
+        sql:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 16384
+          - type: 'null'
+        explanation:
+          type: string
+        queryType:
+          type: string
+          enum:
+          - SELECT
+          - INSERT
+          - UPDATE
+          - DELETE
+          - DDL
+          - TRANSACTION
+          - OTHER
+          - CLARIFICATION
+          - EXPLANATION
+        warnings:
+          type: array
+          items:
+            type: string
+        suggestions:
+          type: array
+          items:
+            type: string
+      required:
+      - conversationId
+      - sql
+      - explanation
+      - queryType
+      - warnings
+      - suggestions
+      additionalProperties: false
+    ExecuteInput:
+      type: object
+      properties:
+        database:
+          $ref: '#/components/schemas/Database'
+        sql:
+          type: string
+          minLength: 1
+          maxLength: 16384
+        sessionId:
+          type: string
+          format: uuid
+        expectedRevision:
+          type: integer
+          minimum: 0
+        confirmWrites:
+          type: boolean
+          default: false
+      required:
+      - database
+      - sql
+      additionalProperties: false
+    Execution:
+      type: object
+      properties:
+        queryId:
+          type: string
+          format: uuid
+        sessionId:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+        revision:
+          anyOf:
+          - type: integer
+            minimum: 0
+          - type: 'null'
+        executionTimeMs:
+          type: number
+          minimum: 0
+        changedRows:
+          type: integer
+          minimum: 0
+        rowCount:
+          type: integer
+          minimum: 0
+        columns:
+          type: array
+          items:
+            type: string
+        rows:
+          type: array
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/Cell'
+        truncated:
+          type: boolean
+      required:
+      - queryId
+      - sessionId
+      - revision
+      - executionTimeMs
+      - changedRows
+      - rowCount
+      - columns
+      - rows
+      - truncated
+      additionalProperties: false
+    Session:
+      type: object
+      properties:
+        sessionId:
+          type: string
+          format: uuid
+        database:
+          $ref: '#/components/schemas/Database'
+        revision:
+          type: integer
+          minimum: 0
+        expiresAt:
+          type: string
+          format: date-time
+      required:
+      - sessionId
+      - database
+      - revision
+      - expiresAt
+      additionalProperties: false
+    Column:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        nullable:
+          type: boolean
+        primaryKeyPosition:
+          type: integer
+          minimum: 0
+      required:
+      - name
+      - type
+      - nullable
+      - primaryKeyPosition
+      additionalProperties: false
+    ForeignKey:
+      type: object
+      properties:
+        columns:
+          type: array
+          items:
+            type: string
+        referencesTable:
+          type: string
+        referencesColumns:
+          type: array
+          items:
+            type: string
+      required:
+      - columns
+      - referencesTable
+      - referencesColumns
+      additionalProperties: false
+    Table:
+      type: object
+      properties:
+        name:
+          type: string
+        columns:
+          type: array
+          items:
+            $ref: '#/components/schemas/Column'
+        foreignKeys:
+          type: array
+          items:
+            $ref: '#/components/schemas/ForeignKey'
+        sample:
+          $ref: '#/components/schemas/Grid'
+      required:
+      - name
+      - columns
+      - foreignKeys
+      - sample
+      additionalProperties: false
+    Schema:
+      type: object
+      properties:
+        database:
+          $ref: '#/components/schemas/Database'
+        seedVersion:
+          type: string
+        revision:
+          anyOf:
+          - type: integer
+            minimum: 0
+          - type: 'null'
+        tables:
+          type: array
+          items:
+            $ref: '#/components/schemas/Table'
+      required:
+      - database
+      - seedVersion
+      - revision
+      - tables
+      additionalProperties: false
+    HistoryItem:
+      type: object
+      properties:
+        queryId:
+          type: string
+          format: uuid
+        database:
+          $ref: '#/components/schemas/Database'
+        sql:
+          type: string
+        status:
+          type: string
+          enum:
+          - success
+          - failed
+        createdAt:
+          type: string
+          format: date-time
+        executionTimeMs:
+          type: number
+          minimum: 0
+        rowCount:
+          type: integer
+          minimum: 0
+        errorCode:
+          anyOf:
+          - type: string
+          - type: 'null'
+      required:
+      - queryId
+      - database
+      - sql
+      - status
+      - createdAt
+      - executionTimeMs
+      - rowCount
+      - errorCode
+      additionalProperties: false
+    History:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/HistoryItem'
+        nextCursor:
+          anyOf:
+          - type: string
+          - type: 'null'
+      required:
+      - items
+      - nextCursor
+      additionalProperties: false
+    Lesson:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        module:
+          type: string
+        level:
+          $ref: '#/components/schemas/Level'
+        title:
+          type: string
+        database:
+          $ref: '#/components/schemas/Database'
+        concept:
+          type: string
+        syntax:
+          type: string
+        exampleSql:
+          type: string
+        expectedOutput:
+          $ref: '#/components/schemas/Grid'
+        exercise:
+          type: string
+        practiceQuestions:
+          type: array
+          items:
+            type: string
+        assessmentQuestions:
+          type: array
+          items:
+            type: string
+        completed:
+          type: boolean
+      required:
+      - id
+      - module
+      - level
+      - title
+      - database
+      - concept
+      - syntax
+      - exampleSql
+      - expectedOutput
+      - exercise
+      - practiceQuestions
+      - assessmentQuestions
+      - completed
+      additionalProperties: false
+    Lessons:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Lesson'
+        nextCursor:
+          anyOf:
+          - type: string
+          - type: 'null'
+      required:
+      - items
+      - nextCursor
+      additionalProperties: false
+    SubmitInput:
+      type: object
+      properties:
+        challengeId:
+          type: string
+          format: uuid
+        sql:
+          type: string
+          minLength: 1
+          maxLength: 16384
+      required:
+      - challengeId
+      - sql
+      additionalProperties: false
+    Submission:
+      type: object
+      properties:
+        submissionId:
+          type: string
+          format: uuid
+        verdict:
+          type: string
+          enum:
+          - passed
+          - incorrect
+          - invalid_sql
+          - limit_exceeded
+        passedCases:
+          type: integer
+          minimum: 0
+        totalCases:
+          type: integer
+          minimum: 0
+        feedback:
+          type: string
+        firstCompletion:
+          type: boolean
+      required:
+      - submissionId
+      - verdict
+      - passedCases
+      - totalCases
+      - feedback
+      - firstCompletion
+      additionalProperties: false
+    Health:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - ready
+      required:
+      - status
+      additionalProperties: false
+    NewSession:
+      type: object
+      properties:
+        database:
+          $ref: '#/components/schemas/Database'
+      required:
+      - database
+      additionalProperties: false
+    ResetInput:
+      type: object
+      properties:
+        expectedRevision:
+          type: integer
+          minimum: 0
+      required:
+      - expectedRevision
+      additionalProperties: false
+    Error:
+      type: object
+      properties:
+        success:
+          const: false
+        requestId:
+          type: string
+          format: uuid
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            queryId:
+              type: string
+              format: uuid
+            position:
+              type: integer
+              minimum: 0
+          required:
+          - code
+          - message
+          additionalProperties: false
+      required:
+      - success
+      - requestId
+      - error
+      additionalProperties: false
+  securitySchemes:
+    DeveloperKey:
+      type: http
+      scheme: bearer
+      description: User-issued scoped developer API key. See x-required-scope on each operation.
+  responses:
+    E400:
+      description: Invalid input, SQL, or bounded execution limit.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    E401:
+      description: Authentication required or invalid credential.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    E403:
+      description: Insufficient scope or practice write requires confirmation.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    E404:
+      description: Resource missing or inaccessible.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    E409:
+      description: Revision, request or idempotency conflict.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    E429:
+      description: Rate limit reached.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+            minimum: 0
+          description: Seconds before retrying.
+    E500:
+      description: Unexpected failure.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    E503:
+      description: Dependency unavailable or invalid provider response.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
