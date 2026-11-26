@@ -34,6 +34,8 @@ export async function credentials(form: FormData) {
     if (error) {
       if (error.name === "AuthRetryableFetchError" || error.status === 0)
         redirect("/login?notice=unavailable");
+      if (error.message.toLowerCase().includes("email not confirmed"))
+        redirect("/login?notice=unconfirmed");
       redirect("/login?notice=signin");
     }
   }

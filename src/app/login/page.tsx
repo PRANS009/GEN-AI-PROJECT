@@ -8,7 +8,10 @@ import { Button } from "@/components/ui/button";
 
 const notices: Record<string, string> = {
   input: "Enter a valid email and a password of the required length.",
-  signin: "Sign-in failed. Check your credentials and try again.",
+  signin:
+    "Sign-in failed. Check your email and password, or create an account if you are new to this deployment.",
+  unconfirmed:
+    "Your email is not confirmed yet. Check your inbox for the confirmation link.",
   signup:
     "Registration could not be completed. Check your details or try again later.",
   confirm: "Check your email to confirm your account.",
