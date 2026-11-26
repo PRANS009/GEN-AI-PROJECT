@@ -4,6 +4,7 @@ import { verifyAuthHeader } from "@/server/api-keys";
 import { dispatchWebhookEvent } from "@/server/webhooks";
 import { recordHistory } from "@/server/history";
 
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const ExecuteBodySchema = z.object({

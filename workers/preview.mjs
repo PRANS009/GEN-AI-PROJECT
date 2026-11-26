@@ -1,7 +1,17 @@
 import { Worker } from "node:worker_threads";
 import { resolve } from "node:path";
+import { runSqliteTask } from "./engine.mjs";
 
 function launchWorker(workerData, deadlineMs = 3000) {
+  if (process.env.VERCEL) {
+    return Promise.race([
+      runSqliteTask(workerData),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Query execution timed out")), deadlineMs),
+      ),
+    ]);
+  }
+
   return new Promise((resolveResult, reject) => {
     const worker = new Worker(resolve(process.cwd(), "workers/sqlite.mjs"), {
       workerData,

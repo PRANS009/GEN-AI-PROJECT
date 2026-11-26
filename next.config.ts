@@ -1,15 +1,20 @@
 import type { NextConfig } from "next";
 
+const sqliteTraceFiles = [
+  "./workers/*.mjs",
+  "./content/*.json",
+  "./node_modules/@sqlite.org/sqlite-wasm/dist/**/*",
+];
+
 const config: NextConfig = {
   poweredByHeader: false,
   outputFileTracingRoot: process.cwd(),
   turbopack: { root: process.cwd() },
+  serverExternalPackages: ["@sqlite.org/sqlite-wasm"],
   outputFileTracingIncludes: {
-    "/api/preview": [
-      "./workers/*.mjs",
-      "./content/datasets.json",
-      "./node_modules/@sqlite.org/sqlite-wasm/dist/**/*",
-    ],
+    "/api/preview": sqliteTraceFiles,
+    "/api/v1/execute": sqliteTraceFiles,
+    "/api/v1/challenges/submit": sqliteTraceFiles,
   },
   async headers() {
     return [

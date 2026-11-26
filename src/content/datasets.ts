@@ -1,5 +1,4 @@
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import raw from "../../content/datasets.json" with { type: "json" };
 
 export interface TableColumn {
   name: string;
@@ -20,9 +19,6 @@ export interface Dataset {
   tables: DatasetTable[];
 }
 
-const raw = JSON.parse(
-  readFileSync(resolve(process.cwd(), "content/datasets.json"), "utf8"),
-) as Dataset[];
-
-export default raw;
-export const datasets = raw;
+const typed = raw as Dataset[];
+export default typed;
+export const datasets = typed;

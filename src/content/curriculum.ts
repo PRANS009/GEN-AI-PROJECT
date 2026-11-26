@@ -1,5 +1,4 @@
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import raw from "../../content/curriculum.json" with { type: "json" };
 
 export interface Lesson {
   id: string;
@@ -39,9 +38,6 @@ export interface Curriculum {
   challenges: Challenge[];
 }
 
-const raw = JSON.parse(
-  readFileSync(resolve(process.cwd(), "content/curriculum.json"), "utf8"),
-) as Curriculum;
-
-export default raw;
-export const curriculum = raw;
+const typed = raw as Curriculum;
+export default typed;
+export const curriculum = typed;

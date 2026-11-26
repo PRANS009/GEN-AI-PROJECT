@@ -2,6 +2,7 @@ import { z } from "zod";
 import { submitChallenge } from "@/server/curriculum";
 import { verifyAuthHeader } from "@/server/api-keys";
 
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const SubmitBodySchema = z.object({
