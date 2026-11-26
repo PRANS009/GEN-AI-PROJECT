@@ -1,8 +1,9 @@
 "use server";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { authClient } from "@/server/auth";
+import { authClient, account } from "@/server/auth";
 import { appOrigin } from "@/config/studio";
+import { logActivity } from "@/server/activity";
 
 export async function credentials(form: FormData) {
   const create = form.get("mode") === "register";
@@ -18,29 +19,68 @@ export async function credentials(form: FormData) {
   if (!inputs.success) redirect("/login?notice=input");
   const client = await authClient();
   if (!client) redirect("/login?notice=unavailable");
+
   if (create) {
     const { data, error } = await client.auth.signUp({
       ...inputs.data,
       options: { emailRedirectTo: appOrigin() + "/auth/callback" },
     });
     if (error) {
+      await logActivity({
+        userId: null,
+        eventType: "auth.register",
+        module: "auth",
+        action: "register",
+        status: "failure",
+        description: "User registration failed",
+        metadata: { reason: error.name },
+      });
       if (error.name === "AuthRetryableFetchError" || error.status === 0)
         redirect("/login?notice=unavailable");
       redirect("/login?notice=signup");
     }
+    await logActivity({
+      userId: data.user?.id ?? null,
+      eventType: "auth.register",
+      module: "auth",
+      action: "register",
+      status: "success",
+      description: "New user registered",
+      metadata: { hasSession: Boolean(data.session) },
+      updateLoginAt: Boolean(data.session),
+    });
     if (!data.session) redirect("/login?notice=confirm");
   } else {
-    const { error } = await client.auth.signInWithPassword(inputs.data);
+    const { data, error } = await client.auth.signInWithPassword(inputs.data);
     if (error) {
+      await logActivity({
+        userId: null,
+        eventType: "auth.login",
+        module: "auth",
+        action: "login",
+        status: "failure",
+        description: "Failed login attempt",
+        metadata: { reason: error.name },
+      });
       if (error.name === "AuthRetryableFetchError" || error.status === 0)
         redirect("/login?notice=unavailable");
       if (error.message.toLowerCase().includes("email not confirmed"))
         redirect("/login?notice=unconfirmed");
       redirect("/login?notice=signin");
     }
+    await logActivity({
+      userId: data.user?.id ?? null,
+      eventType: "auth.login",
+      module: "auth",
+      action: "login",
+      status: "success",
+      description: "User signed in with password",
+      updateLoginAt: true,
+    });
   }
   redirect("/account");
 }
+
 export async function githubLogin() {
   const client = await authClient();
   if (!client || process.env.STUDIO_GITHUB_AUTH !== "true")
@@ -52,12 +92,32 @@ export async function githubLogin() {
   if (error || !data.url) redirect("/login?notice=signin");
   redirect(data.url);
 }
+
 export async function signOut() {
+  const user = await account();
   const client = await authClient();
-  if (client && (await client.auth.signOut({ scope: "local" })).error)
+  if (client && (await client.auth.signOut({ scope: "local" })).error) {
+    await logActivity({
+      userId: user?.id ?? null,
+      eventType: "auth.logout",
+      module: "auth",
+      action: "logout",
+      status: "failure",
+      description: "User logout failed",
+    });
     redirect("/account?notice=signout");
+  }
+  await logActivity({
+    userId: user?.id ?? null,
+    eventType: "auth.logout",
+    module: "auth",
+    action: "logout",
+    status: "success",
+    description: "User signed out",
+  });
   redirect("/");
 }
+
 export async function renameProfile(form: FormData) {
   const name = z.string().trim().min(1).max(60).safeParse(form.get("name"));
   if (!name.success) redirect("/account?notice=name");

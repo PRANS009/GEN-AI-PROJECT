@@ -12,8 +12,15 @@ The authoritative Phase 0 interface is OpenAPI 3.1 in [public/openapi.yaml](../p
 | GET /api/v1/schema | schema:read | Database and optional session → seed version, tables, typed columns, PKs, composite FKs and synthetic seed or owned session previews. |
 | GET /api/v1/history | history:read | Optional cursor and limit → owner's recent executions, newest first, nextCursor. |
 | GET /api/v1/lessons | learning:read | Optional level, cursor and limit → public lesson materials with the caller's completion state. |
-| POST /api/v1/challenges/submit | challenges:submit | Challenge ID and SQL → submission ID, verdict, public case summary, feedback and first-completion flag. Incorrect SQL is a graded attempt and returns 200. |
-| GET /api/health | Public | Short dependency readiness check → ready/degraded and request ID. Use a bounded DB/schema probe and configuration checks. A dependency failure returns 503. Keep provider calls out of routine health checks. |
+| POST | /api/v1/challenges/submit | challenges:submit | Challenge ID and SQL → submission ID, verdict, public case summary, feedback and first-completion flag. Incorrect SQL is a graded attempt and returns 200. |
+| GET | /api/v1/activity | Session | Authenticated user's personal activity history with search, module, status, date-range filters and pagination. |
+| GET | /api/v1/activity/summary | Session | Authenticated user's aggregated activity metrics (queries, AI requests, lessons, challenges, last active). |
+| GET | /api/v1/admin/activity | Admin | Platform-wide activity logs with filtering and pagination (401/403 enforced). |
+| GET | /api/v1/admin/users | Admin | Registered users directory with per-user SQL, AI, and learning stats. |
+| GET | /api/v1/admin/users/{id}/activity | Admin | Individual user profile, summary metrics, and activity timeline. |
+| GET | /api/v1/admin/analytics | Admin | Platform DAU/WAU/MAU, daily trends, module distribution, and recent errors. |
+| GET | /api/v1/admin/activity/export | Admin | Authorized CSV export of filtered activity logs with formula-injection protection. |
+| GET | /api/health | Public | Short dependency readiness check → ready/degraded and request ID. Use a bounded DB/schema probe and configuration checks. A dependency failure returns 503. Keep provider calls out of routine health checks. |
 
 The session resource additionally exposes POST /api/v1/sessions and POST /api/v1/sessions/{id}/reset under sql:execute. An execution without a session uses a fresh practice seed and discards writes when the request ends. A supplied session requires the matching database and an expected revision for writes. Return 409 on a race. The UI can explicitly run up to eight statements in one sandbox call for the transactions lesson. Require a final closed transaction before snapshot publication and discard the whole working copy on error. Return the last statement's grid, with total changed rows and wall time for the batch. The interactive editor and API require explicit confirmWrites for engine-classified writes.
 

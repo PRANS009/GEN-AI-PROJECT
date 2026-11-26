@@ -17,7 +17,8 @@ export async function GET() {
           signal: AbortSignal.timeout(2500),
         },
       );
-      if (response.ok && (await response.json()) === 1)
+      const version = response.ok ? await response.json() : null;
+      if (version === 1 || version === 2)
         return Response.json(
           { success: true, requestId, data: { status: "ready" } },
           { headers },

@@ -42,6 +42,14 @@ export function LessonsView() {
         setRunResult({ columns: data.data.columns, rows: data.data.rows });
         if (!completed.includes(activeLesson.id)) {
           setCompleted((prev) => [...prev, activeLesson.id]);
+          void fetch("/api/v1/lessons/complete", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              lessonId: activeLesson.id,
+              database: activeLesson.database,
+            }),
+          });
         }
       }
     } catch {

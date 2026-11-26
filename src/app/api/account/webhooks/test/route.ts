@@ -1,4 +1,5 @@
 import { dispatchWebhookEvent } from "@/server/webhooks";
+import { logActivity } from "@/server/activity";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +16,14 @@ export async function POST() {
       },
       "anonymous-learner",
     );
+
+    void logActivity({
+      eventType: "webhooks.tested",
+      module: "webhooks",
+      action: "send_test_event",
+      status: "success",
+      description: "Dispatched synthetic webhook test event",
+    });
 
     return Response.json({ success: true, message: "Dispatched synthetic test event" });
   } catch {

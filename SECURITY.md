@@ -20,3 +20,10 @@ Return success on a 2xx response. Retry transport timeouts, 408, 429 and 5xx fai
 ## Secret handling and operations
 
 Keep local environment files out of Git. Supply public Supabase URL and publishable key only to the browser. Keep Gemini, privileged database access, webhook encryption and dispatch secrets server-only. Store the scheduler invocation credential in Supabase Vault. Use independent values and databases for preview and production. Rotate API and signing keys without printing or storing plaintext in logs. Time-limit raw query history, expired practice sessions and delivery-attempt retention. The Phase 6 runbook will specify cleanup, key replacement and verified recovery steps.
+
+
+## Activity Logging & RBAC Controls
+
+- **Metadata Sanitization:** `sanitizeMetadata()` in `src/server/activity.ts` automatically redacts passwords, API keys, tokens, authorization headers, cookies, raw SQL statements, raw AI prompts, and database result rows before persisting to `activity_logs`.
+- **Immutable Audit Trail:** RLS on `activity_logs` permits authenticated users to read and insert only their own records (`user_id = auth.uid()`), while `UPDATE` and `DELETE` are revoked from `authenticated`.
+- **Role-Based Access Control:** `profiles.role` defaults to `'user'` and `UPDATE (role)` is revoked from `authenticated` so users cannot self-escalate. Admin routes (`/admin/activity`, `/api/v1/admin/*`) enforce `requireAdmin()` server-side.

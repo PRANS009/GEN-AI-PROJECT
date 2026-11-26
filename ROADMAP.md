@@ -12,6 +12,7 @@
 | Nov 30–Dec 1 | 5 · Developer platform | Expose the versioned service adapters, keys/scopes/usage, dashboard management, Swagger, code examples, signatures and durable retries. Verify external cURL, revocation, remote receiver acknowledgement, duplicate handling and redelivery after failure. |
 | Dec 2 | 6 · Release | Exercise a clean migration and seed, repeat upgrade from preceding schema, run lint/typecheck/test/build, two-account browser and external-client smoke tests on the deployed version. Record a deployment URL, commit, UTC time, signed receiver receipt and known limits. |
 | Dec 3 | 7 · Academic handoff | Rehearse the demonstration, record actual faculty feedback and response commits, prepare viva Q&A and handwritten report content, verify prescribed format and package approved source. Obtain faculty approval and repository access before submitting. |
+| Nov 26 | 8 · Activity & Admin | Faculty feedback integration: persistent `activity_logs` migration, centralized sanitizing logger, `/activity` timeline, `/admin/activity` RBAC dashboard, charts, individual user monitoring, and CSV export. |
 
 ## Acceptance evidence
 

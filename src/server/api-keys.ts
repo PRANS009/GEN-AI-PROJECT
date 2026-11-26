@@ -77,10 +77,10 @@ export function rotateApiKey(id: string, ownerId: string): { rawKey: string; key
 export async function verifyAuthHeader(
   authHeader: string | null,
   requiredScope?: ApiScope,
-): Promise<{ success: boolean; ownerId?: string; error?: string }> {
+): Promise<{ success: boolean; ownerId?: string; via?: "api_key" | "session"; error?: string }> {
   if (!authHeader) {
     // If running in browser or no auth header, allow local demo user
-    return { success: true, ownerId: "anonymous-learner" };
+    return { success: true, ownerId: "anonymous-learner", via: "session" };
   }
 
   const parts = authHeader.split(" ");
@@ -101,13 +101,13 @@ export async function verifyAuthHeader(
         return { success: false, error: `API key lacks required scope: ${requiredScope}` };
       }
       key.lastUsedAt = new Date().toISOString();
-      return { success: true, ownerId: key.ownerId };
+      return { success: true, ownerId: key.ownerId, via: "api_key" };
     }
   }
 
   // If testing or local developer convenience, allow dev keys matching sk_live_*
   if (token.startsWith("sk_test_") || token.startsWith("sk_live_")) {
-    return { success: true, ownerId: "dev-evaluator" };
+    return { success: true, ownerId: "dev-evaluator", via: "api_key" };
   }
 
   return { success: false, error: "Invalid API key." };

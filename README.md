@@ -47,3 +47,11 @@ node --env-file=.env.local scripts/smoke-local.mjs
 The last command requires the running local app and Supabase. It creates two synthetic local accounts, submits the actual registration and login forms, updates a profile and verifies isolation. The automated suite also exercises the migration on PostgreSQL-compatible PGlite, all seeded tables and worker timeout recovery. The public health check returns 200 only when the database schema probe succeeds. A missing database returns 503.
 
 For a Vercel preview, use the repository root, configure a reachable Supabase project from .env.example, apply the migration and register the preview callback. Localhost credentials only work on this Mac. The remaining release checks and university submission workflow are in [ROADMAP.md](ROADMAP.md).
+
+## Activity Logging & Admin Monitoring
+
+Persistent server-side activity logging tracks user registration, login/logout, AI requests, SQL executions, explorer previews, lesson/challenge completions, API key actions, and webhook events in `public.activity_logs`.
+
+- **Personal Activity History:** Available at `/activity` (and summarized on `/`) with search, module/status/date filters, and pagination.
+- **Admin Monitoring Dashboard:** Protected route at `/admin/activity` restricted to users with `profiles.role = 'admin'` (or listed in `ADMIN_EMAILS`). Includes DAU/WAU/MAU, trend charts, individual user inspection, and CSV export.
+- **Assigning an Admin:** Run `update public.profiles set role = 'admin' where email = 'your-email@example.com';` in the Supabase SQL Editor, or set `ADMIN_EMAILS=your-email@example.com` in Vercel environment variables.

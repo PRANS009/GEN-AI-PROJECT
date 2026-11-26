@@ -5,6 +5,7 @@ import {
   listDeliveries,
   WEBHOOK_EVENTS,
 } from "@/server/webhooks";
+import { logActivity } from "@/server/activity";
 
 export const dynamic = "force-dynamic";
 
@@ -38,6 +39,15 @@ export async function POST(request: Request) {
       body.data.url,
       body.data.events || [...WEBHOOK_EVENTS],
     );
+
+    void logActivity({
+      eventType: "webhooks.created",
+      module: "webhooks",
+      action: "register_webhook",
+      status: "success",
+      description: `Registered webhook endpoint (${endpoint.events.length} events)`,
+      metadata: { webhookId: endpoint.id, eventCount: endpoint.events.length },
+    });
 
     return Response.json({
       success: true,

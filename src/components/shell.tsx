@@ -12,6 +12,8 @@ import {
   KeyRound,
   Webhook,
   BookOpen,
+  Activity,
+  ShieldAlert,
   Menu,
   Sun,
   Moon,
@@ -31,6 +33,7 @@ const links = [
   { href: "/challenges", title: "Practice Challenges", icon: Trophy },
   { href: "/api-keys", title: "Developer API Keys", icon: KeyRound },
   { href: "/webhooks", title: "Webhooks", icon: Webhook },
+  { href: "/activity", title: "Activity History", icon: Activity },
   { href: "/docs", title: "Developer guide", icon: BookOpen },
 ];
 
@@ -46,14 +49,20 @@ function readDark() {
 export function Shell({
   children,
   signedIn,
+  isAdmin = false,
 }: {
   children: React.ReactNode;
   signedIn: boolean;
+  isAdmin?: boolean;
 }) {
   const pathname = usePathname();
   const [narrow, setNarrow] = useState(false);
   const [open, setOpen] = useState(false);
   const dark = useSyncExternalStore(subscribe, readDark, () => false);
+
+  const visibleLinks = isAdmin
+    ? [...links, { href: "/admin/activity", title: "Admin Monitoring", icon: ShieldAlert }]
+    : links;
 
   function theme() {
     const next = dark ? "light" : "dark";
@@ -65,7 +74,7 @@ export function Shell({
   }
 
   const current =
-    links.find((item) => item.href === pathname)?.title ||
+    visibleLinks.find((item) => item.href === pathname)?.title ||
     (pathname === "/account" ? "Account" : "Sign in");
 
   return (
@@ -98,7 +107,7 @@ export function Shell({
         </button>
         <div className="nav-caption">Workspace</div>
         <nav>
-          {links.map(({ href, title, icon: Icon }) => (
+          {visibleLinks.map(({ href, title, icon: Icon }) => (
             <Link
               key={href}
               title={title}

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { submitChallenge } from "@/server/curriculum";
 import { verifyAuthHeader } from "@/server/api-keys";
+import { logActivity } from "@/server/activity";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -12,6 +13,7 @@ const SubmitBodySchema = z.object({
 
 export async function POST(request: Request) {
   const requestId = crypto.randomUUID();
+  const startedAt = performance.now();
   const auth = await verifyAuthHeader(request.headers.get("authorization"), "challenges:submit");
   if (!auth.success) {
     return Response.json(
@@ -31,8 +33,34 @@ export async function POST(request: Request) {
     }
 
     const evaluation = await submitChallenge(body.data.challengeId, body.data.sql, auth.ownerId);
+    const durationMs = Math.round(performance.now() - startedAt);
+
+    void logActivity({
+      eventType: evaluation.passed ? "challenge.completed" : "challenge.attempted",
+      module: "challenges",
+      action: evaluation.passed ? "complete_challenge" : "attempt_challenge",
+      status: evaluation.passed ? "success" : "failure",
+      description: evaluation.passed
+        ? `Solved challenge ${body.data.challengeId}`
+        : `Attempted challenge ${body.data.challengeId}`,
+      durationMs,
+      metadata: {
+        challengeId: body.data.challengeId,
+        passed: evaluation.passed,
+        via: auth.via || "session",
+      },
+    });
+
     return Response.json({ success: true, requestId, data: evaluation });
   } catch (err) {
+    void logActivity({
+      eventType: "challenge.attempted",
+      module: "challenges",
+      action: "attempt_challenge",
+      status: "failure",
+      description: "Challenge submission error",
+      durationMs: Math.round(performance.now() - startedAt),
+    });
     return Response.json(
       {
         success: false,

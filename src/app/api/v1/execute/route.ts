@@ -3,6 +3,7 @@ import { executeSql } from "../../../../../workers/preview.mjs";
 import { verifyAuthHeader } from "@/server/api-keys";
 import { dispatchWebhookEvent } from "@/server/webhooks";
 import { recordHistory } from "@/server/history";
+import { logActivity } from "@/server/activity";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -16,6 +17,15 @@ export async function POST(request: Request) {
   const requestId = crypto.randomUUID();
   const auth = await verifyAuthHeader(request.headers.get("authorization"), "sql:execute");
   if (!auth.success) {
+    void logActivity({
+      userId: null,
+      eventType: "sql.executed",
+      module: "sql",
+      action: "execute",
+      status: "failure",
+      description: "Unauthorized SQL execution request",
+      metadata: { via: "api_key" },
+    });
     return Response.json(
       { success: false, requestId, error: { code: "UNAUTHORIZED", message: auth.error } },
       { status: 401 },
@@ -43,6 +53,22 @@ export async function POST(request: Request) {
         durationMs: result.durationMs,
         rowCount: result.totalRows,
         affectedRows: result.affectedRows,
+      });
+
+      void logActivity({
+        eventType: "sql.executed",
+        module: "sql",
+        action: "execute",
+        status: "success",
+        description: `Executed SQL on ${body.data.database} (${result.totalRows} rows)`,
+        durationMs: Math.round(result.durationMs),
+        metadata: {
+          queryId: historyItem.id,
+          database: body.data.database,
+          rowCount: result.totalRows,
+          affectedRows: result.affectedRows,
+          via: auth.via || "session",
+        },
       });
 
       // Dispatch webhook
@@ -73,6 +99,19 @@ export async function POST(request: Request) {
         rowCount: 0,
         affectedRows: 0,
         error: errorMsg,
+      });
+
+      void logActivity({
+        eventType: "sql.executed",
+        module: "sql",
+        action: "execute",
+        status: "failure",
+        description: `SQL execution failed on ${body.data.database}`,
+        metadata: {
+          queryId: historyItem.id,
+          database: body.data.database,
+          via: auth.via || "session",
+        },
       });
 
       void dispatchWebhookEvent("query.failed", {

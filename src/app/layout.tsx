@@ -6,7 +6,7 @@ import "@fontsource/inter/700.css";
 import "@fontsource/ibm-plex-mono/400.css";
 import "./globals.css";
 import { brand } from "@/config/studio";
-import { account } from "@/server/auth";
+import { account, isAdminUser } from "@/server/auth";
 import { Shell } from "@/components/shell";
 
 export const metadata: Metadata = {
@@ -20,6 +20,7 @@ export default async function Layout({
   children: React.ReactNode;
 }) {
   const user = await account();
+  const isAdmin = await isAdminUser(user);
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -31,7 +32,7 @@ export default async function Layout({
         />
       </head>
       <body>
-        <Shell signedIn={!!user}>{children}</Shell>
+        <Shell signedIn={!!user} isAdmin={isAdmin}>{children}</Shell>
       </body>
     </html>
   );

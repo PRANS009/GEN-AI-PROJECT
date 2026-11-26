@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { revokeApiKey, rotateApiKey } from "@/server/api-keys";
+import { logActivity } from "@/server/activity";
 
 export const dynamic = "force-dynamic";
 
@@ -17,12 +18,28 @@ export async function POST(request: Request) {
 
     if (body.data.action === "revoke") {
       const ok = revokeApiKey(body.data.id, "anonymous-learner");
+      void logActivity({
+        eventType: "api_keys.revoked",
+        module: "api_keys",
+        action: "revoke_key",
+        status: ok ? "success" : "failure",
+        description: ok ? `Revoked API key ${body.data.id}` : `Failed to revoke API key ${body.data.id}`,
+        metadata: { keyId: body.data.id },
+      });
       return Response.json({ success: ok });
     }
 
     if (body.data.action === "rotate") {
       const res = rotateApiKey(body.data.id, "anonymous-learner");
       if (!res) return Response.json({ success: false, error: "Key not found" }, { status: 404 });
+      void logActivity({
+        eventType: "api_keys.rotated",
+        module: "api_keys",
+        action: "rotate_key",
+        status: "success",
+        description: `Rotated API key "${res.keyRecord.name}"`,
+        metadata: { keyId: res.keyRecord.id, prefix: res.keyRecord.prefix },
+      });
       return Response.json({
         success: true,
         data: {

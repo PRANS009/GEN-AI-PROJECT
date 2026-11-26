@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { fixSql } from "@/server/ai";
 import { verifyAuthHeader } from "@/server/api-keys";
+import { logActivity } from "@/server/activity";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +13,7 @@ const FixBodySchema = z.object({
 
 export async function POST(request: Request) {
   const requestId = crypto.randomUUID();
+  const startedAt = performance.now();
   const auth = await verifyAuthHeader(request.headers.get("authorization"), "ai:use");
   if (!auth.success) {
     return Response.json(
@@ -30,8 +32,25 @@ export async function POST(request: Request) {
     }
 
     const result = await fixSql(body.data.sql, body.data.database, body.data.error);
+    void logActivity({
+      eventType: "ai.fix",
+      module: "ai",
+      action: "fix_sql",
+      status: "success",
+      description: `Fixed SQL query for ${body.data.database}`,
+      durationMs: Math.round(performance.now() - startedAt),
+      metadata: { database: body.data.database, via: auth.via || "session" },
+    });
     return Response.json({ success: true, requestId, data: result });
   } catch {
+    void logActivity({
+      eventType: "ai.fix",
+      module: "ai",
+      action: "fix_sql",
+      status: "failure",
+      description: "SQL fix request failed",
+      durationMs: Math.round(performance.now() - startedAt),
+    });
     return Response.json(
       { success: false, requestId, error: { code: "INTERNAL_ERROR", message: "Failed to fix SQL" } },
       { status: 500 },

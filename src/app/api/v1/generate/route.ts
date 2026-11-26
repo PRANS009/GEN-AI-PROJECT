@@ -2,6 +2,7 @@ import { z } from "zod";
 import { requestGemini } from "@/server/ai";
 import { verifyAuthHeader } from "@/server/api-keys";
 import { dispatchWebhookEvent } from "@/server/webhooks";
+import { logActivity } from "@/server/activity";
 
 export const dynamic = "force-dynamic";
 
@@ -13,8 +14,18 @@ const GenerateBodySchema = z.object({
 
 export async function POST(request: Request) {
   const requestId = crypto.randomUUID();
+  const startedAt = performance.now();
   const auth = await verifyAuthHeader(request.headers.get("authorization"), "ai:use");
   if (!auth.success) {
+    void logActivity({
+      userId: null,
+      eventType: "ai.generate",
+      module: "ai",
+      action: "generate_sql",
+      status: "failure",
+      description: "Unauthorized AI SQL generation request",
+      metadata: { via: "api_key" },
+    });
     return Response.json(
       { success: false, requestId, error: { code: "UNAUTHORIZED", message: auth.error } },
       { status: 401 },
@@ -36,11 +47,26 @@ export async function POST(request: Request) {
     }
 
     const result = await requestGemini(body.data.prompt, body.data.database);
+    const durationMs = Math.round(performance.now() - startedAt);
+
+    void logActivity({
+      eventType: "ai.generate",
+      module: "ai",
+      action: "generate_sql",
+      status: "success",
+      description: `Generated ${result.queryType} query for ${body.data.database}`,
+      durationMs,
+      metadata: {
+        database: body.data.database,
+        dialect: body.data.dialect,
+        queryType: result.queryType,
+        via: auth.via || "session",
+      },
+    });
 
     // Fire webhook
     void dispatchWebhookEvent("query.generated", {
       database: body.data.database,
-      prompt: body.data.prompt,
       queryType: result.queryType,
     });
 
@@ -54,6 +80,15 @@ export async function POST(request: Request) {
       },
     });
   } catch (err) {
+    void logActivity({
+      eventType: "ai.generate",
+      module: "ai",
+      action: "generate_sql",
+      status: "failure",
+      description: "AI SQL generation failed",
+      durationMs: Math.round(performance.now() - startedAt),
+      metadata: { via: auth.via || "session" },
+    });
     return Response.json(
       {
         success: false,

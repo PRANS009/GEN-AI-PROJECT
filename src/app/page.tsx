@@ -12,15 +12,27 @@ import { Catalog } from "@/components/catalog";
 import datasets from "../../content/datasets.json";
 import { listHistory } from "@/server/history";
 import { getStats } from "@/server/curriculum";
+import { account } from "@/server/auth";
+import { queryActivityLogs, getUserSummary } from "@/server/activity";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
+  const user = await account();
+  const userSummary = user ? await getUserSummary(user.id) : null;
+  const recentActivity = user
+    ? (await queryActivityLogs({ userId: user.id, page: 1, limit: 5 }, false)).items
+    : [];
   const count = datasets.reduce((total, d) => total + d.tables.length, 0);
   const history = listHistory(20);
   const stats = getStats();
-  const successfulQueries = history.filter((h) => h.status === "success").length;
-  const failedQueries = history.filter((h) => h.status === "error").length;
+  const successfulQueries = userSummary
+    ? userSummary.queriesSucceeded
+    : history.filter((h) => h.status === "success").length;
+  const failedQueries = userSummary
+    ? userSummary.queriesFailed
+    : history.filter((h) => h.status === "error").length;
+  const totalQueries = userSummary ? userSummary.queriesExecuted : history.length;
 
   return (
     <div className="page space-y-8">
@@ -40,7 +52,7 @@ export default async function Home() {
             <Code2 className="h-4 w-4 text-[var(--accent)]" />
           </div>
           <div className="mt-2 text-2xl font-bold font-mono text-[var(--ink)]">
-            {history.length}
+            {totalQueries}
           </div>
           <span className="text-[11px] text-[var(--muted)]">
             {successfulQueries} success · {failedQueries} failed
@@ -151,6 +163,46 @@ export default async function Home() {
           </span>
         </div>
         <Catalog />
+      </section>
+
+      {/* Personal Activity History Preview */}
+      <section className="section">
+        <div className="section-head">
+          <h2 className="text-lg font-bold text-[var(--ink)]">Activity History</h2>
+          <Link href="/activity" className="text-xs font-semibold text-[var(--accent)] hover:underline">
+            View full timeline &rarr;
+          </Link>
+        </div>
+        <div className="rounded-xl border border-[var(--line)] bg-[var(--surface)] overflow-hidden">
+          {!user ? (
+            <div className="p-5 flex items-center justify-between text-xs text-[var(--muted)]">
+              <span>Sign in to persist and inspect your personal activity history.</span>
+              <Link href="/login" className="font-semibold text-[var(--accent)] hover:underline">
+                Sign in &rarr;
+              </Link>
+            </div>
+          ) : recentActivity.length === 0 ? (
+            <div className="p-5 text-xs text-[var(--muted)]">
+              No activity recorded yet. Run a SQL query or generate one with AI to start tracking.
+            </div>
+          ) : (
+            <div className="divide-y divide-[var(--line)]">
+              {recentActivity.map((item) => (
+                <div key={item.id} className="px-4 py-3 flex items-center justify-between text-xs">
+                  <div>
+                    <span className="font-medium text-[var(--ink)]">{item.description}</span>
+                    <span className="ml-2 font-mono text-[10px] rounded bg-[var(--tint)] text-[var(--accent)] px-1.5 py-0.5">
+                      {item.module}
+                    </span>
+                  </div>
+                  <span className="font-mono text-[11px] text-[var(--muted)]">
+                    {new Date(item.created_at).toLocaleString()}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </section>
 
       {/* Developer API & Webhooks Section */}

@@ -1,5 +1,6 @@
 import { runPreview, type SampleResult } from "../../../../workers/preview.mjs";
 import datasets from "../../../../content/datasets.json";
+import { logActivity } from "@/server/activity";
 
 export const runtime = "nodejs";
 // Only fixed, public seed views are cached. Distinct valid keys are bounded by the catalogue.
@@ -22,11 +23,29 @@ export async function GET(request: Request) {
     samples.set(key, pending);
   }
   try {
-    return Response.json(await pending, {
+    const result = await pending;
+    void logActivity({
+      eventType: "explorer.preview",
+      module: "explorer",
+      action: "preview_table",
+      status: "success",
+      description: `Inspected ${dataset.id}.${table.name}`,
+      durationMs: Math.round(result.durationMs),
+      metadata: { database: dataset.id, table: table.name },
+    });
+    return Response.json(result, {
       headers: { "Cache-Control": "public, max-age=60" },
     });
   } catch {
     samples.delete(key);
+    void logActivity({
+      eventType: "explorer.preview",
+      module: "explorer",
+      action: "preview_table",
+      status: "failure",
+      description: `Failed to inspect ${dataset.id}.${table.name}`,
+      metadata: { database: dataset.id, table: table.name },
+    });
     return Response.json(
       { error: "The sample database could not be opened. Try again." },
       { status: 503 },

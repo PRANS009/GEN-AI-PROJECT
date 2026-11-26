@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { generateApiKey, listApiKeys, API_SCOPES } from "@/server/api-keys";
+import { logActivity } from "@/server/activity";
 
 export const dynamic = "force-dynamic";
 
@@ -37,6 +38,15 @@ export async function POST(request: Request) {
       "anonymous-learner",
       body.data.scopes || [...API_SCOPES],
     );
+
+    void logActivity({
+      eventType: "api_keys.created",
+      module: "api_keys",
+      action: "create_key",
+      status: "success",
+      description: `Created API key "${keyRecord.name}"`,
+      metadata: { keyId: keyRecord.id, prefix: keyRecord.prefix, scopeCount: keyRecord.scopes.length },
+    });
 
     return Response.json({
       success: true,

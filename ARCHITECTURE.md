@@ -57,7 +57,8 @@ Use UUIDs for resource IDs, UTC `timestamptz` for times, and foreign keys for ev
 
 | Relation | Columns and rules beyond the shared fields |
 | --- | --- |
-| profiles | id is both PK and FK to auth.users. Display name, theme, skill level. Auth owns credentials. |
+| profiles | id is both PK and FK to auth.users. Display name, email, role ('user' or 'admin'), last_login_at, last_active_at. Auth owns credentials. |
+| activity_logs | Nullable user_id FK to profiles, event_type, module, action, status ('success' or 'failure'), description, duration_ms, sanitized jsonb metadata, created_at. Indexed by (user_id, created_at desc), (created_at desc), and (module, event_type). |
 | datasets | Stable slug PK, title, seed version, manifest digest. Package matching immutable seeds in the worker bundle. |
 | practice_sessions | Owner, dataset FK, seed version, revision ≥ 0, bounded snapshot bytea, expires_at. Unique (owner_id,id). Limit active sessions per owner and purge expired images. |
 | conversations / messages | Conversation belongs to owner and dataset. Message references parent, has ordinal, role and validated content. Unique (conversation_id,ordinal). Enforce parent ownership on every load. |
