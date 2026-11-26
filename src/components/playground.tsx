@@ -210,21 +210,21 @@ export function SqlPlayground({ defaultDb = "student_management" }: { defaultDb?
   return (
     <div className="page space-y-6">
       {/* Header bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b pb-4">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--line)] pb-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Interactive SQL Playground</h1>
-          <p className="text-sm text-neutral-400">
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--ink)]">Interactive SQL Playground</h1>
+          <p className="text-sm text-[var(--muted)]">
             Write, execute, optimize and debug SQL with isolated sandboxed SQLite execution.
           </p>
         </div>
 
         {/* Database selector */}
         <div className="flex items-center gap-2">
-          <Database className="h-4 w-4 text-emerald-400" />
+          <Database className="h-4 w-4 text-[var(--accent)]" />
           <select
             value={dbId}
             onChange={(e) => setDbId(e.target.value)}
-            className="rounded border border-neutral-700 bg-neutral-900 px-3 py-1.5 text-sm text-neutral-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            className="rounded-lg border border-[var(--line)] bg-[var(--surface)] px-3 py-1.5 text-sm text-[var(--ink)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
           >
             {datasets.map((d) => (
               <option key={d.id} value={d.id}>
@@ -236,8 +236,8 @@ export function SqlPlayground({ defaultDb = "student_management" }: { defaultDb?
       </div>
 
       {/* AI Assistant natural language bar */}
-      <div className="rounded-lg border border-neutral-800 bg-neutral-950 p-4 shadow-sm">
-        <div className="flex items-center gap-2 text-sm font-medium text-emerald-400 mb-2">
+      <div className="rounded-xl border border-[var(--line)] bg-[var(--surface)] p-4">
+        <div className="flex items-center gap-2 text-sm font-medium text-[var(--accent)] mb-2">
           <Sparkles className="h-4 w-4" />
           <span>Natural Language to SQL Assistant</span>
         </div>
@@ -248,12 +248,12 @@ export function SqlPlayground({ defaultDb = "student_management" }: { defaultDb?
             onChange={(e) => setPrompt(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleAiGenerate()}
             placeholder="e.g. Find students scoring above 80 marks or Top 5 employees by salary..."
-            className="flex-1 rounded border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-500 focus:border-emerald-500 focus:outline-none"
+            className="flex-1 rounded-lg border border-[var(--line)] bg-[var(--bg)] px-3 py-2 text-sm text-[var(--ink)] placeholder-[var(--muted)] focus:border-[var(--accent)] focus:outline-none"
           />
           <button
             onClick={handleAiGenerate}
             disabled={isAiLoading || !prompt.trim()}
-            className="flex items-center gap-2 rounded bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500 disabled:opacity-50"
+            className="flex items-center gap-2 rounded-lg bg-[#09664f] px-4 py-2 text-sm font-semibold text-white hover:bg-[#07523f] disabled:opacity-50"
           >
             <Wand2 className="h-4 w-4" />
             {isAiLoading ? "Generating..." : "Generate SQL"}
@@ -262,36 +262,36 @@ export function SqlPlayground({ defaultDb = "student_management" }: { defaultDb?
       </div>
 
       {/* Main editor & action toolbar */}
-      <div className="rounded-lg border border-neutral-800 bg-neutral-950 overflow-hidden">
-        <div className="flex flex-wrap items-center justify-between border-b border-neutral-800 bg-neutral-900/60 px-4 py-2.5 text-xs text-neutral-300">
-          <div className="flex items-center gap-2 font-mono">
+      <div className="rounded-xl border border-[var(--line)] bg-[var(--surface)] overflow-hidden">
+        <div className="flex flex-wrap items-center justify-between border-b border-[var(--line)] bg-[var(--bg)] px-4 py-2.5 text-xs text-[var(--ink)]">
+          <div className="flex items-center gap-2 font-mono font-medium">
             <span>SQL Editor ({currentDataset.title})</span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={handleAiExplain}
               disabled={isAiLoading}
-              className="flex items-center gap-1.5 rounded border border-neutral-700 bg-neutral-800 px-2.5 py-1 text-xs hover:bg-neutral-700 text-neutral-200"
+              className="flex items-center gap-1.5 rounded border border-[var(--line)] bg-[var(--surface)] px-2.5 py-1 text-xs hover:bg-[var(--tint)] text-[var(--ink)]"
               title="Explain query line by line"
             >
-              <HelpCircle className="h-3.5 w-3.5 text-sky-400" />
+              <HelpCircle className="h-3.5 w-3.5 text-sky-500" />
               Explain
             </button>
             <button
               onClick={handleAiOptimize}
               disabled={isAiLoading}
-              className="flex items-center gap-1.5 rounded border border-neutral-700 bg-neutral-800 px-2.5 py-1 text-xs hover:bg-neutral-700 text-neutral-200"
+              className="flex items-center gap-1.5 rounded border border-[var(--line)] bg-[var(--surface)] px-2.5 py-1 text-xs hover:bg-[var(--tint)] text-[var(--ink)]"
               title="Suggest optimizations"
             >
-              <TrendingUp className="h-3.5 w-3.5 text-emerald-400" />
+              <TrendingUp className="h-3.5 w-3.5 text-emerald-500" />
               Optimize
             </button>
             {error && (
               <button
                 onClick={handleAiFix}
                 disabled={isAiLoading}
-                className="flex items-center gap-1.5 rounded border border-amber-800/80 bg-amber-950/60 px-2.5 py-1 text-xs text-amber-200 hover:bg-amber-900"
+                className="flex items-center gap-1.5 rounded border border-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2.5 py-1 text-xs text-amber-800 dark:text-amber-200 hover:bg-amber-100"
               >
                 <Wand2 className="h-3.5 w-3.5" />
                 Fix with AI
@@ -299,15 +299,15 @@ export function SqlPlayground({ defaultDb = "student_management" }: { defaultDb?
             )}
             <button
               onClick={handleCopy}
-              className="flex items-center gap-1.5 rounded border border-neutral-700 bg-neutral-800 px-2.5 py-1 text-xs hover:bg-neutral-700 text-neutral-200"
+              className="flex items-center gap-1.5 rounded border border-[var(--line)] bg-[var(--surface)] px-2.5 py-1 text-xs hover:bg-[var(--tint)] text-[var(--ink)]"
             >
-              {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+              {copied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
               {copied ? "Copied" : "Copy"}
             </button>
             <button
               onClick={() => handleRun()}
               disabled={isRunning}
-              className="flex items-center gap-1.5 rounded bg-emerald-600 px-3.5 py-1 text-xs font-semibold text-white hover:bg-emerald-500 disabled:opacity-50"
+              className="flex items-center gap-1.5 rounded bg-[#09664f] px-3.5 py-1 text-xs font-semibold text-white hover:bg-[#07523f] disabled:opacity-50"
             >
               <Play className="h-3.5 w-3.5 fill-current" />
               {isRunning ? "Running..." : "Run Query"}
@@ -315,35 +315,35 @@ export function SqlPlayground({ defaultDb = "student_management" }: { defaultDb?
           </div>
         </div>
 
-        {/* Code textarea with line numbers styling */}
-        <div className="relative font-mono text-sm bg-neutral-950 p-4">
+        {/* Code textarea */}
+        <div className="relative font-mono text-sm bg-[var(--surface)] p-4">
           <textarea
             value={sql}
             onChange={(e) => setSql(e.target.value)}
             rows={6}
             spellCheck={false}
-            className="w-full resize-y bg-transparent font-mono text-emerald-400 focus:outline-none leading-relaxed"
+            className="w-full resize-y bg-transparent font-mono text-[var(--ink)] focus:outline-none leading-relaxed"
           />
         </div>
       </div>
 
       {/* AI explanation and suggestions banner if active */}
       {aiMessage && (
-        <div className="rounded-lg border border-sky-800/60 bg-sky-950/30 p-4 text-sm text-sky-200 space-y-2">
+        <div className="rounded-xl border border-sky-300 dark:border-sky-800 bg-sky-50 dark:bg-sky-950/30 p-4 text-sm text-sky-950 dark:text-sky-200 space-y-2">
           {aiMessage.explanation && (
             <div>
-              <span className="font-semibold text-sky-300">Explanation: </span>
+              <span className="font-semibold text-sky-700 dark:text-sky-300">Explanation: </span>
               {aiMessage.explanation}
             </div>
           )}
           {aiMessage.warnings && aiMessage.warnings.length > 0 && (
-            <div className="text-amber-300 text-xs flex items-center gap-1">
+            <div className="text-amber-700 dark:text-amber-300 text-xs flex items-center gap-1">
               <AlertTriangle className="h-3.5 w-3.5" />
               <span>Warnings: {aiMessage.warnings.join(", ")}</span>
             </div>
           )}
           {aiMessage.suggestions && aiMessage.suggestions.length > 0 && (
-            <div className="text-xs text-sky-300">
+            <div className="text-xs text-sky-800 dark:text-sky-300">
               <span className="font-medium">Suggestions: </span>
               {aiMessage.suggestions.join("; ")}
             </div>
@@ -352,15 +352,15 @@ export function SqlPlayground({ defaultDb = "student_management" }: { defaultDb?
       )}
 
       {/* Output tabs and execution results */}
-      <div className="rounded-lg border border-neutral-800 bg-neutral-950 overflow-hidden">
-        <div className="flex items-center justify-between border-b border-neutral-800 bg-neutral-900/60 px-4 py-2">
+      <div className="rounded-xl border border-[var(--line)] bg-[var(--surface)] overflow-hidden">
+        <div className="flex items-center justify-between border-b border-[var(--line)] bg-[var(--bg)] px-4 py-2">
           <div className="flex items-center gap-4 text-xs font-medium">
             <button
               onClick={() => setActiveTab("results")}
               className={`pb-1 border-b-2 ${
                 activeTab === "results"
-                  ? "border-emerald-500 text-emerald-400"
-                  : "border-transparent text-neutral-400 hover:text-neutral-200"
+                  ? "border-[var(--accent)] text-[var(--accent)]"
+                  : "border-transparent text-[var(--muted)] hover:text-[var(--ink)]"
               }`}
             >
               Results {result && `(${result.totalRows} rows)`}
@@ -369,8 +369,8 @@ export function SqlPlayground({ defaultDb = "student_management" }: { defaultDb?
               onClick={() => setActiveTab("schema")}
               className={`pb-1 border-b-2 ${
                 activeTab === "schema"
-                  ? "border-emerald-500 text-emerald-400"
-                  : "border-transparent text-neutral-400 hover:text-neutral-200"
+                  ? "border-[var(--accent)] text-[var(--accent)]"
+                  : "border-transparent text-[var(--muted)] hover:text-[var(--ink)]"
               }`}
             >
               Schema Tree
@@ -379,8 +379,8 @@ export function SqlPlayground({ defaultDb = "student_management" }: { defaultDb?
               onClick={() => setActiveTab("history")}
               className={`pb-1 border-b-2 ${
                 activeTab === "history"
-                  ? "border-emerald-500 text-emerald-400"
-                  : "border-transparent text-neutral-400 hover:text-neutral-200"
+                  ? "border-[var(--accent)] text-[var(--accent)]"
+                  : "border-transparent text-[var(--muted)] hover:text-[var(--ink)]"
               }`}
             >
               Query History ({historyList.length})
@@ -388,21 +388,21 @@ export function SqlPlayground({ defaultDb = "student_management" }: { defaultDb?
           </div>
 
           {result && (
-            <div className="flex items-center gap-3 text-xs text-neutral-400">
+            <div className="flex items-center gap-3 text-xs text-[var(--muted)]">
               <span className="flex items-center gap-1">
-                <Clock className="h-3.5 w-3.5 text-neutral-500" />
+                <Clock className="h-3.5 w-3.5" />
                 {result.durationMs}ms
               </span>
               <button
                 onClick={exportCsv}
-                className="flex items-center gap-1 text-neutral-300 hover:text-white"
+                className="flex items-center gap-1 text-[var(--ink)] hover:text-[var(--accent)]"
                 title="Download CSV"
               >
                 <Download className="h-3.5 w-3.5" /> CSV
               </button>
               <button
                 onClick={exportJson}
-                className="flex items-center gap-1 text-neutral-300 hover:text-white"
+                className="flex items-center gap-1 text-[var(--ink)] hover:text-[var(--accent)]"
                 title="Download JSON"
               >
                 <Download className="h-3.5 w-3.5" /> JSON
@@ -414,14 +414,14 @@ export function SqlPlayground({ defaultDb = "student_management" }: { defaultDb?
         {/* Tab content */}
         <div className="p-4">
           {error && (
-            <div className="rounded border border-red-900/80 bg-red-950/40 p-3 text-sm text-red-300 flex items-start justify-between">
+            <div className="rounded-lg border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 p-3 text-sm text-red-800 dark:text-red-300 flex items-start justify-between">
               <div>
                 <p className="font-semibold">Execution Error</p>
                 <p className="font-mono text-xs mt-1">{error}</p>
               </div>
               <button
                 onClick={handleAiFix}
-                className="rounded bg-red-900/50 px-2 py-1 text-xs text-red-200 hover:bg-red-900"
+                className="rounded bg-red-600 px-2.5 py-1 text-xs text-white hover:bg-red-500"
               >
                 Fix with AI
               </button>
@@ -432,7 +432,7 @@ export function SqlPlayground({ defaultDb = "student_management" }: { defaultDb?
             <div className="overflow-x-auto">
               <table className="w-full text-left font-mono text-xs">
                 <thead>
-                  <tr className="border-b border-neutral-800 text-neutral-400">
+                  <tr className="border-b border-[var(--line)] text-[var(--muted)]">
                     {result.columns.map((col) => (
                       <th key={col} className="pb-2 pr-4 font-semibold">
                         {col}
@@ -440,12 +440,12 @@ export function SqlPlayground({ defaultDb = "student_management" }: { defaultDb?
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-neutral-900 text-neutral-200">
+                <tbody className="divide-y divide-[var(--line)] text-[var(--ink)]">
                   {result.rows.map((row, rIdx) => (
-                    <tr key={rIdx} className="hover:bg-neutral-900/40">
+                    <tr key={rIdx} className="hover:bg-[var(--bg)]">
                       {row.map((val, cIdx) => (
                         <td key={cIdx} className="py-1.5 pr-4">
-                          {val === null ? <span className="text-neutral-500 italic">NULL</span> : String(val)}
+                          {val === null ? <span className="text-[var(--muted)] italic">NULL</span> : String(val)}
                         </td>
                       ))}
                     </tr>
@@ -456,7 +456,7 @@ export function SqlPlayground({ defaultDb = "student_management" }: { defaultDb?
           )}
 
           {activeTab === "results" && !result && !error && (
-            <div className="py-8 text-center text-sm text-neutral-500">
+            <div className="py-8 text-center text-sm text-[var(--muted)]">
               No query executed yet. Enter SQL or generate one with AI, then click Run Query.
             </div>
           )}
@@ -464,15 +464,15 @@ export function SqlPlayground({ defaultDb = "student_management" }: { defaultDb?
           {activeTab === "schema" && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {currentDataset.tables.map((tbl) => (
-                <div key={tbl.name} className="rounded border border-neutral-800 p-3 bg-neutral-900/30">
-                  <h4 className="font-semibold text-sm text-emerald-400 font-mono mb-1">{tbl.name}</h4>
-                  <p className="text-xs text-neutral-400 font-mono mb-2">{tbl.definition}</p>
+                <div key={tbl.name} className="rounded-lg border border-[var(--line)] p-3 bg-[var(--bg)]">
+                  <h4 className="font-semibold text-sm text-[var(--accent)] font-mono mb-1">{tbl.name}</h4>
+                  <p className="text-xs text-[var(--muted)] font-mono mb-2">{tbl.definition}</p>
                   <button
                     onClick={() => {
                       setSql(`SELECT * FROM "${tbl.name}" LIMIT 20;`);
                       void handleRun(`SELECT * FROM "${tbl.name}" LIMIT 20;`);
                     }}
-                    className="text-xs text-sky-400 hover:underline"
+                    className="text-xs text-[var(--accent)] hover:underline font-medium"
                   >
                     Quick Query &rarr;
                   </button>
@@ -484,17 +484,17 @@ export function SqlPlayground({ defaultDb = "student_management" }: { defaultDb?
           {activeTab === "history" && (
             <div className="space-y-2">
               {historyList.length === 0 ? (
-                <p className="text-sm text-neutral-500 py-4 text-center">No history recorded in this session.</p>
+                <p className="text-sm text-[var(--muted)] py-4 text-center">No history recorded in this session.</p>
               ) : (
                 historyList.map((h, i) => (
                   <div
                     key={i}
-                    className="flex items-center justify-between rounded border border-neutral-800 p-2 text-xs font-mono bg-neutral-900/40"
+                    className="flex items-center justify-between rounded-lg border border-[var(--line)] p-2 text-xs font-mono bg-[var(--bg)]"
                   >
-                    <span className="truncate max-w-md text-neutral-300">{h.sql}</span>
+                    <span className="truncate max-w-md text-[var(--ink)]">{h.sql}</span>
                     <div className="flex items-center gap-3">
-                      <span className="text-neutral-500">{h.time}</span>
-                      <span className={h.status === "success" ? "text-emerald-400" : "text-red-400"}>
+                      <span className="text-[var(--muted)]">{h.time}</span>
+                      <span className={h.status === "success" ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}>
                         {h.status === "success" ? `${h.rows} rows` : "error"}
                       </span>
                       <button
@@ -502,7 +502,7 @@ export function SqlPlayground({ defaultDb = "student_management" }: { defaultDb?
                           setSql(h.sql);
                           void handleRun(h.sql);
                         }}
-                        className="text-sky-400 hover:underline"
+                        className="text-[var(--accent)] hover:underline font-medium"
                       >
                         Run
                       </button>

@@ -80,23 +80,23 @@ export function WebhooksView() {
   return (
     <div className="page space-y-6 max-w-4xl">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-neutral-100">Webhook Subscriptions</h1>
-        <p className="text-sm text-neutral-400 mt-1">
+        <h1 className="text-2xl font-bold tracking-tight text-[var(--ink)]">Webhook Subscriptions</h1>
+        <p className="text-sm text-[var(--muted)] mt-1">
           Receive real-time signed event notifications whenever SQL is generated, executed, or lessons/challenges are completed.
         </p>
       </div>
 
       {/* Secret Reveal Banner */}
       {newlyAddedSecret && (
-        <div className="rounded-lg border border-emerald-800 bg-emerald-950/40 p-4 space-y-3">
-          <div className="flex items-center gap-2 text-emerald-400 font-semibold text-sm">
+        <div className="rounded-xl border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 p-4 space-y-3">
+          <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 font-semibold text-sm">
             <ShieldCheck className="h-4 w-4" />
             <span>Webhook Registered Successfully!</span>
           </div>
-          <p className="text-xs text-neutral-300">
-            Use this shared signing secret to verify the <code className="text-emerald-300">X-Studio-Signature</code> HMAC header on incoming requests.
+          <p className="text-xs text-[var(--ink)]">
+            Use this shared signing secret to verify the <code className="text-[var(--accent)]">X-Studio-Signature</code> HMAC header on incoming requests.
           </p>
-          <div className="flex items-center gap-2 font-mono text-xs bg-neutral-900 border border-neutral-700 p-2.5 rounded text-neutral-100">
+          <div className="flex items-center gap-2 font-mono text-xs bg-[var(--surface)] border border-[var(--line)] p-2.5 rounded text-[var(--ink)]">
             <span className="truncate flex-1">{newlyAddedSecret}</span>
             <button
               onClick={() => {
@@ -104,7 +104,7 @@ export function WebhooksView() {
                 setCopied(true);
                 setTimeout(() => setCopied(false), 2000);
               }}
-              className="flex items-center gap-1 bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1 rounded text-xs"
+              className="flex items-center gap-1 bg-[#09664f] hover:bg-[#07523f] text-white px-2.5 py-1 rounded text-xs"
             >
               {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
               {copied ? "Copied" : "Copy Secret"}
@@ -114,20 +114,20 @@ export function WebhooksView() {
       )}
 
       {/* Register Endpoint Card */}
-      <div className="rounded-lg border border-neutral-800 bg-neutral-950 p-5 space-y-4">
-        <h2 className="text-sm font-semibold text-neutral-200">Register Webhook Endpoint</h2>
+      <div className="rounded-xl border border-[var(--line)] bg-[var(--surface)] p-5 space-y-4">
+        <h2 className="text-sm font-semibold text-[var(--ink)]">Register Webhook Endpoint</h2>
         <form onSubmit={handleRegister} className="flex gap-3">
           <input
             type="url"
             placeholder="https://your-server.com/api/webhook"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            className="flex-1 rounded border border-neutral-800 bg-neutral-900 px-3 py-2 text-xs text-neutral-100 placeholder-neutral-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 font-mono"
+            className="flex-1 rounded-lg border border-[var(--line)] bg-[var(--bg)] px-3 py-2 text-xs text-[var(--ink)] placeholder-[var(--muted)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)] font-mono"
           />
           <button
             type="submit"
             disabled={!url.trim()}
-            className="flex items-center gap-1.5 rounded bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-500 disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-lg bg-[#09664f] px-4 py-2 text-xs font-semibold text-white hover:bg-[#07523f] disabled:opacity-50"
           >
             <Plus className="h-3.5 w-3.5" />
             Subscribe
@@ -138,29 +138,29 @@ export function WebhooksView() {
       {/* Endpoints & Delivery Log */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Subscribed Webhooks */}
-        <div className="rounded-lg border border-neutral-800 bg-neutral-950 p-4 space-y-3">
-          <div className="flex items-center justify-between border-b border-neutral-800 pb-2">
-            <span className="font-semibold text-xs text-neutral-200">Active Webhooks ({webhooks.length})</span>
+        <div className="rounded-xl border border-[var(--line)] bg-[var(--surface)] p-4 space-y-3">
+          <div className="flex items-center justify-between border-b border-[var(--line)] pb-2">
+            <span className="font-semibold text-xs text-[var(--ink)]">Active Webhooks ({webhooks.length})</span>
             {webhooks.length > 0 && (
               <button
                 onClick={handleSendTest}
                 disabled={isTesting}
-                className="flex items-center gap-1 text-xs text-sky-400 hover:text-sky-300 font-medium"
+                className="flex items-center gap-1 text-xs text-[var(--accent)] hover:underline font-medium"
               >
                 <Send className="h-3 w-3" /> {isTesting ? "Sending..." : "Send Test Event"}
               </button>
             )}
           </div>
           {webhooks.length === 0 ? (
-            <p className="text-xs text-neutral-500 py-4 text-center">No active webhook endpoints registered.</p>
+            <p className="text-xs text-[var(--muted)] py-4 text-center">No active webhook endpoints registered.</p>
           ) : (
             <div className="space-y-2">
               {webhooks.map((w) => (
-                <div key={w.id} className="rounded border border-neutral-850 p-3 bg-neutral-900/40 text-xs font-mono">
-                  <p className="truncate text-neutral-200 font-medium mb-1">{w.url}</p>
-                  <div className="flex items-center justify-between text-[11px] text-neutral-500">
+                <div key={w.id} className="rounded-lg border border-[var(--line)] p-3 bg-[var(--bg)] text-xs font-mono">
+                  <p className="truncate text-[var(--ink)] font-medium mb-1">{w.url}</p>
+                  <div className="flex items-center justify-between text-[11px] text-[var(--muted)]">
                     <span>{w.events.length} events subscribed</span>
-                    <span className="text-emerald-400">Active</span>
+                    <span className="text-emerald-600 dark:text-emerald-400">Active</span>
                   </div>
                 </div>
               ))}
@@ -169,28 +169,28 @@ export function WebhooksView() {
         </div>
 
         {/* Deliveries Log */}
-        <div className="rounded-lg border border-neutral-800 bg-neutral-950 p-4 space-y-3">
-          <span className="font-semibold text-xs text-neutral-200 border-b border-neutral-800 pb-2 block">
+        <div className="rounded-xl border border-[var(--line)] bg-[var(--surface)] p-4 space-y-3">
+          <span className="font-semibold text-xs text-[var(--ink)] border-b border-[var(--line)] pb-2 block">
             Recent Delivery History ({deliveries.length})
           </span>
           {deliveries.length === 0 ? (
-            <p className="text-xs text-neutral-500 py-4 text-center">No webhook delivery logs recorded yet.</p>
+            <p className="text-xs text-[var(--muted)] py-4 text-center">No webhook delivery logs recorded yet.</p>
           ) : (
             <div className="space-y-2 max-h-64 overflow-y-auto">
               {deliveries.map((d) => (
                 <div
                   key={d.id}
-                  className="flex items-center justify-between rounded border border-neutral-850 p-2 text-xs font-mono bg-neutral-900/40"
+                  className="flex items-center justify-between rounded-lg border border-[var(--line)] p-2 text-xs font-mono bg-[var(--bg)]"
                 >
                   <div className="flex items-center gap-2 truncate">
                     {d.status === "success" ? (
-                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                     ) : (
-                      <XCircle className="h-3.5 w-3.5 text-red-400 shrink-0" />
+                      <XCircle className="h-3.5 w-3.5 text-red-600 dark:text-red-400 shrink-0" />
                     )}
-                    <span className="truncate text-neutral-200">{d.event}</span>
+                    <span className="truncate text-[var(--ink)]">{d.event}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-neutral-400">
+                  <div className="flex items-center gap-2 text-[var(--muted)]">
                     <span>{d.statusCode ? `HTTP ${d.statusCode}` : "ERR"}</span>
                   </div>
                 </div>

@@ -88,27 +88,27 @@ export function ApiKeysView() {
   return (
     <div className="page space-y-6 max-w-4xl">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-neutral-100">API Key Management</h1>
-        <p className="text-sm text-neutral-400 mt-1">
+        <h1 className="text-2xl font-bold tracking-tight text-[var(--ink)]">API Key Management</h1>
+        <p className="text-sm text-[var(--muted)] mt-1">
           Generate scoped developer API keys to integrate SQL Studio AI into external applications, scripts, and CI pipelines.
         </p>
       </div>
 
       {/* Secret Reveal Banner */}
       {newlyCreatedKey && (
-        <div className="rounded-lg border border-emerald-800 bg-emerald-950/40 p-4 space-y-3">
-          <div className="flex items-center gap-2 text-emerald-400 font-semibold text-sm">
+        <div className="rounded-xl border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 p-4 space-y-3">
+          <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 font-semibold text-sm">
             <ShieldCheck className="h-4 w-4" />
             <span>New API Key Generated!</span>
           </div>
-          <p className="text-xs text-neutral-300">
+          <p className="text-xs text-[var(--ink)]">
             Copy this secret now. For security reasons, the full key is never stored in plain text and cannot be viewed again.
           </p>
-          <div className="flex items-center gap-2 font-mono text-xs bg-neutral-900 border border-neutral-700 p-2.5 rounded text-neutral-100">
+          <div className="flex items-center gap-2 font-mono text-xs bg-[var(--surface)] border border-[var(--line)] p-2.5 rounded text-[var(--ink)]">
             <span className="truncate flex-1">{newlyCreatedKey}</span>
             <button
               onClick={() => copySecret(newlyCreatedKey)}
-              className="flex items-center gap-1 bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1 rounded text-xs"
+              className="flex items-center gap-1 bg-[#09664f] hover:bg-[#07523f] text-white px-2.5 py-1 rounded text-xs"
             >
               {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
               {copied ? "Copied" : "Copy Secret"}
@@ -118,20 +118,20 @@ export function ApiKeysView() {
       )}
 
       {/* Create New Key Card */}
-      <div className="rounded-lg border border-neutral-800 bg-neutral-950 p-5 space-y-4">
-        <h2 className="text-sm font-semibold text-neutral-200">Create New Developer Key</h2>
+      <div className="rounded-xl border border-[var(--line)] bg-[var(--surface)] p-5 space-y-4">
+        <h2 className="text-sm font-semibold text-[var(--ink)]">Create New Developer Key</h2>
         <form onSubmit={handleCreateKey} className="flex gap-3">
           <input
             type="text"
             placeholder="Key Name (e.g. Production CI / Backend Agent)"
             value={newKeyName}
             onChange={(e) => setNewKeyName(e.target.value)}
-            className="flex-1 rounded border border-neutral-800 bg-neutral-900 px-3 py-2 text-xs text-neutral-100 placeholder-neutral-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            className="flex-1 rounded-lg border border-[var(--line)] bg-[var(--bg)] px-3 py-2 text-xs text-[var(--ink)] placeholder-[var(--muted)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
           />
           <button
             type="submit"
             disabled={loading || !newKeyName.trim()}
-            className="flex items-center gap-1.5 rounded bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-500 disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-lg bg-[#09664f] px-4 py-2 text-xs font-semibold text-white hover:bg-[#07523f] disabled:opacity-50"
           >
             <Plus className="h-3.5 w-3.5" />
             Create Key
@@ -140,18 +140,18 @@ export function ApiKeysView() {
       </div>
 
       {/* Keys Table */}
-      <div className="rounded-lg border border-neutral-800 bg-neutral-950 overflow-hidden">
-        <div className="px-4 py-3 border-b border-neutral-800 font-semibold text-xs text-neutral-300">
+      <div className="rounded-xl border border-[var(--line)] bg-[var(--surface)] overflow-hidden">
+        <div className="px-4 py-3 border-b border-[var(--line)] font-semibold text-xs text-[var(--ink)] bg-[var(--bg)]">
           Active & Revoked Developer Keys
         </div>
         {keys.length === 0 ? (
-          <div className="p-8 text-center text-xs text-neutral-500">
+          <div className="p-8 text-center text-xs text-[var(--muted)]">
             No API keys created yet. Generate one above to begin external integration.
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left font-mono text-xs">
-              <thead className="border-b border-neutral-800 text-neutral-400 bg-neutral-900/50">
+              <thead className="border-b border-[var(--line)] text-[var(--muted)] bg-[var(--bg)]">
                 <tr>
                   <th className="py-2.5 px-4 font-semibold">Name</th>
                   <th className="py-2.5 px-4 font-semibold">Prefix</th>
@@ -161,24 +161,24 @@ export function ApiKeysView() {
                   <th className="py-2.5 px-4 font-semibold text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-neutral-800 text-neutral-200">
+              <tbody className="divide-y divide-[var(--line)] text-[var(--ink)]">
                 {keys.map((k) => (
-                  <tr key={k.id} className="hover:bg-neutral-900/40">
-                    <td className="py-2.5 px-4 font-sans font-medium text-neutral-100">{k.name}</td>
-                    <td className="py-2.5 px-4 text-neutral-400">{k.prefix}...</td>
+                  <tr key={k.id} className="hover:bg-[var(--bg)]">
+                    <td className="py-2.5 px-4 font-sans font-medium">{k.name}</td>
+                    <td className="py-2.5 px-4 text-[var(--muted)]">{k.prefix}...</td>
                     <td className="py-2.5 px-4">
-                      <span className="rounded bg-neutral-800 px-1.5 py-0.5 text-[10px] text-neutral-300">
+                      <span className="rounded bg-[var(--tint)] px-1.5 py-0.5 text-[10px] text-[var(--accent)]">
                         {k.scopes.length} scopes
                       </span>
                     </td>
-                    <td className="py-2.5 px-4 text-neutral-400">
+                    <td className="py-2.5 px-4 text-[var(--muted)]">
                       {new Date(k.createdAt).toLocaleDateString()}
                     </td>
                     <td className="py-2.5 px-4">
                       {k.revokedAt ? (
-                        <span className="text-red-400">Revoked</span>
+                        <span className="text-red-600 dark:text-red-400">Revoked</span>
                       ) : (
-                        <span className="text-emerald-400">Active</span>
+                        <span className="text-emerald-600 dark:text-emerald-400">Active</span>
                       )}
                     </td>
                     <td className="py-2.5 px-4 text-right">
@@ -186,14 +186,14 @@ export function ApiKeysView() {
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => handleRotateKey(k.id)}
-                            className="text-neutral-400 hover:text-sky-400 p-1"
+                            className="text-[var(--muted)] hover:text-sky-500 p-1"
                             title="Rotate Key"
                           >
                             <RefreshCw className="h-3.5 w-3.5" />
                           </button>
                           <button
                             onClick={() => handleRevokeKey(k.id)}
-                            className="text-neutral-400 hover:text-red-400 p-1"
+                            className="text-[var(--muted)] hover:text-red-500 p-1"
                             title="Revoke Key"
                           >
                             <Trash2 className="h-3.5 w-3.5" />

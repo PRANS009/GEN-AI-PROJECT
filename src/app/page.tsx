@@ -26,62 +26,62 @@ export default async function Home() {
     <div className="page space-y-8">
       {/* Heading */}
       <div className="heading">
-        <h1 className="text-2xl font-bold tracking-tight">SQL Studio AI Dashboard</h1>
-        <p className="text-neutral-400 text-sm">
+        <h1 className="text-2xl font-bold tracking-tight text-[var(--ink)]">SQL Studio AI Dashboard</h1>
+        <p className="text-[var(--muted)] text-sm">
           Intelligent AI Database Query Assistant and SQL Learning Platform.
         </p>
       </div>
 
       {/* Metrics Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="rounded-lg border border-neutral-800 bg-neutral-950 p-4">
-          <div className="flex items-center justify-between text-neutral-400 text-xs">
+        <div className="rounded-xl border border-[var(--line)] bg-[var(--surface)] p-4">
+          <div className="flex items-center justify-between text-[var(--muted)] text-xs">
             <span>Queries Executed</span>
-            <Code2 className="h-4 w-4 text-emerald-400" />
+            <Code2 className="h-4 w-4 text-[var(--accent)]" />
           </div>
-          <div className="mt-2 text-2xl font-bold font-mono text-neutral-100">
+          <div className="mt-2 text-2xl font-bold font-mono text-[var(--ink)]">
             {history.length}
           </div>
-          <span className="text-[11px] text-neutral-500">
+          <span className="text-[11px] text-[var(--muted)]">
             {successfulQueries} success · {failedQueries} failed
           </span>
         </div>
 
-        <div className="rounded-lg border border-neutral-800 bg-neutral-950 p-4">
-          <div className="flex items-center justify-between text-neutral-400 text-xs">
+        <div className="rounded-xl border border-[var(--line)] bg-[var(--surface)] p-4">
+          <div className="flex items-center justify-between text-[var(--muted)] text-xs">
             <span>Lessons Completed</span>
-            <GraduationCap className="h-4 w-4 text-sky-400" />
+            <GraduationCap className="h-4 w-4 text-sky-500" />
           </div>
-          <div className="mt-2 text-2xl font-bold font-mono text-neutral-100">
-            {stats.completedLessons} <span className="text-sm font-normal text-neutral-500">/ {stats.totalLessons}</span>
+          <div className="mt-2 text-2xl font-bold font-mono text-[var(--ink)]">
+            {stats.completedLessons} <span className="text-sm font-normal text-[var(--muted)]">/ {stats.totalLessons}</span>
           </div>
-          <span className="text-[11px] text-sky-400">
+          <span className="text-[11px] text-sky-600 dark:text-sky-400">
             Beginner & Intermediate
           </span>
         </div>
 
-        <div className="rounded-lg border border-neutral-800 bg-neutral-950 p-4">
-          <div className="flex items-center justify-between text-neutral-400 text-xs">
+        <div className="rounded-xl border border-[var(--line)] bg-[var(--surface)] p-4">
+          <div className="flex items-center justify-between text-[var(--muted)] text-xs">
             <span>Challenges Solved</span>
-            <Trophy className="h-4 w-4 text-amber-400" />
+            <Trophy className="h-4 w-4 text-amber-500" />
           </div>
-          <div className="mt-2 text-2xl font-bold font-mono text-neutral-100">
-            {stats.solvedChallenges} <span className="text-sm font-normal text-neutral-500">/ {stats.totalChallenges}</span>
+          <div className="mt-2 text-2xl font-bold font-mono text-[var(--ink)]">
+            {stats.solvedChallenges} <span className="text-sm font-normal text-[var(--muted)]">/ {stats.totalChallenges}</span>
           </div>
-          <span className="text-[11px] text-amber-400">
+          <span className="text-[11px] text-amber-600 dark:text-amber-400">
             Multiset Automated Grading
           </span>
         </div>
 
-        <div className="rounded-lg border border-neutral-800 bg-neutral-950 p-4">
-          <div className="flex items-center justify-between text-neutral-400 text-xs">
+        <div className="rounded-xl border border-[var(--line)] bg-[var(--surface)] p-4">
+          <div className="flex items-center justify-between text-[var(--muted)] text-xs">
             <span>Curriculum Progress</span>
-            <Flame className="h-4 w-4 text-rose-400" />
+            <Flame className="h-4 w-4 text-rose-500" />
           </div>
-          <div className="mt-2 text-2xl font-bold font-mono text-neutral-100">
+          <div className="mt-2 text-2xl font-bold font-mono text-[var(--ink)]">
             {stats.progressPercentage}%
           </div>
-          <span className="text-[11px] text-neutral-500">Overall Mastery</span>
+          <span className="text-[11px] text-[var(--muted)]">Overall Mastery</span>
         </div>
       </div>
 
@@ -89,54 +89,54 @@ export default async function Home() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Link
           href="/playground"
-          className="group rounded-lg border border-emerald-900/60 bg-emerald-950/20 p-5 hover:bg-emerald-950/40 transition-colors space-y-3"
+          className="group rounded-xl border border-[var(--line)] bg-[var(--surface)] p-5 hover:border-[var(--accent)] transition-colors space-y-3"
         >
           <div className="flex items-center justify-between">
-            <span className="rounded bg-emerald-900/60 p-2 text-emerald-300">
+            <span className="rounded-lg bg-[var(--tint)] p-2 text-[var(--accent)]">
               <Sparkles className="h-5 w-5" />
             </span>
-            <span className="text-xs font-semibold text-emerald-400 group-hover:translate-x-1 transition-transform">
+            <span className="text-xs font-semibold text-[var(--accent)] group-hover:translate-x-1 transition-transform">
               Launch &rarr;
             </span>
           </div>
-          <h3 className="font-bold text-base text-neutral-100">SQL Playground & AI</h3>
-          <p className="text-xs text-neutral-400 leading-relaxed">
+          <h3 className="font-bold text-base text-[var(--ink)]">SQL Playground & AI</h3>
+          <p className="text-xs text-[var(--muted)] leading-relaxed">
             Generate SQL from natural language, execute in sandboxed SQLite, explain clauses, and fix errors.
           </p>
         </Link>
 
         <Link
           href="/learn"
-          className="group rounded-lg border border-sky-900/60 bg-sky-950/20 p-5 hover:bg-sky-950/40 transition-colors space-y-3"
+          className="group rounded-xl border border-[var(--line)] bg-[var(--surface)] p-5 hover:border-[var(--accent)] transition-colors space-y-3"
         >
           <div className="flex items-center justify-between">
-            <span className="rounded bg-sky-900/60 p-2 text-sky-300">
+            <span className="rounded-lg bg-sky-100 dark:bg-sky-950/60 p-2 text-sky-600 dark:text-sky-300">
               <GraduationCap className="h-5 w-5" />
             </span>
-            <span className="text-xs font-semibold text-sky-400 group-hover:translate-x-1 transition-transform">
+            <span className="text-xs font-semibold text-sky-600 dark:text-sky-400 group-hover:translate-x-1 transition-transform">
               Start &rarr;
             </span>
           </div>
-          <h3 className="font-bold text-base text-neutral-100">Learn SQL Curriculum</h3>
-          <p className="text-xs text-neutral-400 leading-relaxed">
+          <h3 className="font-bold text-base text-[var(--ink)]">Learn SQL Curriculum</h3>
+          <p className="text-xs text-[var(--muted)] leading-relaxed">
             Follow structured lessons covering relational concepts, joins, aggregations, subqueries, and window functions.
           </p>
         </Link>
 
         <Link
           href="/challenges"
-          className="group rounded-lg border border-amber-900/60 bg-amber-950/20 p-5 hover:bg-amber-950/40 transition-colors space-y-3"
+          className="group rounded-xl border border-[var(--line)] bg-[var(--surface)] p-5 hover:border-[var(--accent)] transition-colors space-y-3"
         >
           <div className="flex items-center justify-between">
-            <span className="rounded bg-amber-900/60 p-2 text-amber-300">
+            <span className="rounded-lg bg-amber-100 dark:bg-amber-950/60 p-2 text-amber-600 dark:text-amber-300">
               <Trophy className="h-5 w-5" />
             </span>
-            <span className="text-xs font-semibold text-amber-400 group-hover:translate-x-1 transition-transform">
+            <span className="text-xs font-semibold text-amber-600 dark:text-amber-400 group-hover:translate-x-1 transition-transform">
               Practice &rarr;
             </span>
           </div>
-          <h3 className="font-bold text-base text-neutral-100">Practice Challenges</h3>
-          <p className="text-xs text-neutral-400 leading-relaxed">
+          <h3 className="font-bold text-base text-[var(--ink)]">Practice Challenges</h3>
+          <p className="text-xs text-[var(--muted)] leading-relaxed">
             Solve graded coding challenges with automated multiset verification, test cases, and progressive AI hints.
           </p>
         </Link>
@@ -145,8 +145,8 @@ export default async function Home() {
       {/* Sample Databases Section */}
       <section className="section">
         <div className="section-head">
-          <h2 className="text-lg font-bold">Predefined Synthetic Datasets</h2>
-          <span className="text-xs text-neutral-400">
+          <h2 className="text-lg font-bold text-[var(--ink)]">Predefined Synthetic Datasets</h2>
+          <span className="text-xs text-[var(--muted)]">
             {datasets.length} datasets <i>·</i> {count} relational tables
           </span>
         </div>
@@ -156,12 +156,12 @@ export default async function Home() {
       {/* Developer API & Webhooks Section */}
       <section className="section">
         <div className="section-head">
-          <h2 className="text-lg font-bold">Developer Platform & APIs</h2>
+          <h2 className="text-lg font-bold text-[var(--ink)]">Developer Platform & APIs</h2>
         </div>
         <div className="resources">
           <Link href="/api-keys">
             <div className="resource-icon">
-              <KeyRound size={20} className="text-emerald-400" />
+              <KeyRound size={20} className="text-[var(--accent)]" />
             </div>
             <div>
               <h3>Developer API Keys</h3>
@@ -170,7 +170,7 @@ export default async function Home() {
           </Link>
           <Link href="/webhooks">
             <div className="resource-icon">
-              <Code2 size={20} className="text-sky-400" />
+              <Code2 size={20} className="text-sky-500" />
             </div>
             <div>
               <h3>Webhook Subscriptions</h3>
@@ -179,7 +179,7 @@ export default async function Home() {
           </Link>
           <Link href="/docs">
             <div className="resource-icon">
-              <BookOpen size={20} className="text-amber-400" />
+              <BookOpen size={20} className="text-amber-500" />
             </div>
             <div>
               <h3>API Documentation</h3>
