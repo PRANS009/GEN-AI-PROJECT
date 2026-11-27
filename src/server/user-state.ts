@@ -35,7 +35,8 @@ export async function getUserLearningState(
   userId: string,
   email: string | null = null,
 ): Promise<UserLearningState> {
-  const db = serviceClient() || (await authClient());
+  const client = await authClient();
+  const db = serviceClient() || client;
   if (db) {
     try {
       const { data, error } = await db
@@ -62,9 +63,34 @@ export async function getUserLearningState(
         };
       }
     } catch {
-      // Fall back to memory store if table not migrated yet
+      // Fall through to auth metadata fallback
     }
   }
+
+  // Fallback to Supabase Auth user_metadata so resume works even before table migration
+  if (client) {
+    try {
+      const { data } = await client.auth.getUser();
+      const meta = data.user?.user_metadata?.studio_state as
+        | Partial<UserLearningState>
+        | undefined;
+      if (meta && data.user?.id === userId) {
+        return {
+          ...defaultState(userId, email),
+          ...meta,
+          user_id: userId,
+          email: email ?? data.user.email ?? null,
+          completed_lessons: Array.isArray(meta.completed_lessons)
+            ? meta.completed_lessons
+            : [],
+          solved_challenges: Array.isArray(meta.solved_challenges)
+            ? meta.solved_challenges
+            : [],
+        };
+      }
+    } catch {}
+  }
+
   return memoryState.get(userId) || defaultState(userId, email);
 }
 
@@ -103,10 +129,13 @@ export async function saveUserLearningState(
 
   memoryState.set(userId, next);
 
-  const db = serviceClient() || (await authClient());
+  const client = await authClient();
+  const db = serviceClient() || client;
+  let tableSaved = false;
+
   if (db) {
     try {
-      await db.from("user_learning_state").upsert(
+      const { error } = await db.from("user_learning_state").upsert(
         {
           user_id: userId,
           email: next.email,
@@ -121,9 +150,28 @@ export async function saveUserLearningState(
         },
         { onConflict: "user_id" },
       );
-    } catch {
-      // Keep memory state if migration hasn't been applied yet
-    }
+      if (!error) tableSaved = true;
+    } catch {}
+  }
+
+  // Always mirror compact state to user_metadata if table wasn't available
+  if (!tableSaved && client) {
+    try {
+      await client.auth.updateUser({
+        data: {
+          studio_state: {
+            last_route: next.last_route,
+            last_lesson_id: next.last_lesson_id,
+            last_challenge_id: next.last_challenge_id,
+            last_database: next.last_database,
+            playground_sql: next.playground_sql.slice(0, 1000),
+            completed_lessons: next.completed_lessons,
+            solved_challenges: next.solved_challenges,
+            updated_at: next.updated_at,
+          },
+        },
+      });
+    } catch {}
   }
 
   return next;

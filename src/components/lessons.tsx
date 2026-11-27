@@ -32,7 +32,27 @@ export function LessonsView({
   const [showHint, setShowHint] = useState(false);
 
   const allLessons = rawCurriculum.modules.flatMap((m) => m.lessons);
-  const activeLesson = allLessons.find((l) => l.id === activeLessonId) || allLessons[0];
+  const activeIndex = allLessons.findIndex((l) => l.id === activeLessonId);
+  const activeLesson = allLessons[activeIndex >= 0 ? activeIndex : 0];
+  const nextLesson =
+    activeIndex >= 0 && activeIndex + 1 < allLessons.length
+      ? allLessons[activeIndex + 1]
+      : null;
+
+  function selectLesson(lesson: (typeof allLessons)[number]) {
+    setActiveLessonId(lesson.id);
+    setExerciseSql(lesson.starterSql);
+    setRunResult(null);
+    setShowHint(false);
+    void fetch("/api/account/state", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        last_route: "/learn",
+        last_lesson_id: lesson.id,
+      }),
+    });
+  }
 
   async function handleRunExercise() {
     const sqlToRun = exerciseSql.trim() || activeLesson.starterSql;
@@ -93,20 +113,7 @@ export function LessonsView({
                     return (
                       <button
                         key={lesson.id}
-                        onClick={() => {
-                          setActiveLessonId(lesson.id);
-                          setExerciseSql(lesson.starterSql);
-                          setRunResult(null);
-                          setShowHint(false);
-                          void fetch("/api/account/state", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                              last_route: "/learn",
-                              last_lesson_id: lesson.id,
-                            }),
-                          });
-                        }}
+                        onClick={() => selectLesson(lesson)}
                         className={`w-full flex items-center justify-between text-left px-3 py-2 rounded-lg text-xs transition-colors border ${
                           isSelected
                             ? "bg-[var(--tint)] text-[var(--accent)] border-[var(--accent)] font-semibold"
@@ -222,9 +229,19 @@ export function LessonsView({
                   </div>
                 ) : (
                   <div>
-                    <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 block mb-2">
-                      ✔ Exercise Executed Successfully!
-                    </span>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                        ✔ Exercise Executed Successfully!
+                      </span>
+                      {nextLesson && (
+                        <button
+                          onClick={() => selectLesson(nextLesson)}
+                          className="inline-flex items-center gap-1 rounded bg-[#09664f] px-3 py-1 text-xs font-semibold text-white hover:bg-[#07523f]"
+                        >
+                          Next Lesson <ArrowRight className="h-3 w-3" />
+                        </button>
+                      )}
+                    </div>
                     <div className="overflow-x-auto max-h-40 rounded border border-[var(--line)] bg-[var(--surface)] p-2">
                       <table className="w-full text-left font-mono text-xs">
                         <thead>

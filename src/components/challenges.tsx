@@ -35,8 +35,27 @@ export function ChallengesView({
   } | null>(null);
   const [solvedList, setSolvedList] = useState<string[]>(initialSolved);
 
-  const activeChallenge =
-    challenges.find((c) => c.id === activeChallengeId) || challenges[0];
+  const activeIndex = challenges.findIndex((c) => c.id === activeChallengeId);
+  const activeChallenge = challenges[activeIndex >= 0 ? activeIndex : 0];
+  const nextChallenge =
+    activeIndex >= 0 && activeIndex + 1 < challenges.length
+      ? challenges[activeIndex + 1]
+      : null;
+
+  function selectChallenge(c: (typeof challenges)[number]) {
+    setActiveChallengeId(c.id);
+    setSql(c.starterSql);
+    setSubmissionResult(null);
+    setShowHint(false);
+    void fetch("/api/account/state", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        last_route: "/challenges",
+        last_challenge_id: c.id,
+      }),
+    });
+  }
 
   async function handleSubmit() {
     if (!sql.trim()) return;
@@ -100,20 +119,7 @@ export function ChallengesView({
               return (
                 <button
                   key={c.id}
-                  onClick={() => {
-                    setActiveChallengeId(c.id);
-                    setSql(c.starterSql);
-                    setSubmissionResult(null);
-                    setShowHint(false);
-                    void fetch("/api/account/state", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({
-                        last_route: "/challenges",
-                        last_challenge_id: c.id,
-                      }),
-                    });
-                  }}
+                  onClick={() => selectChallenge(c)}
                   className={`w-full flex items-center justify-between text-left p-3 rounded-lg border transition-colors ${
                     isSelected
                       ? "border-[var(--accent)] bg-[var(--tint)] text-[var(--ink)]"
@@ -217,17 +223,27 @@ export function ChallengesView({
                   : "border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-200"
               }`}
             >
-              <div className="flex items-center gap-2 font-semibold text-sm">
-                {submissionResult.passed ? (
-                  <>
-                    <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                    <span>Passed! Congratulations!</span>
-                  </>
-                ) : (
-                  <>
-                    <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
-                    <span>Test Cases Failed</span>
-                  </>
+              <div className="flex items-center justify-between gap-2 font-semibold text-sm">
+                <div className="flex items-center gap-2">
+                  {submissionResult.passed ? (
+                    <>
+                      <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                      <span>Passed! Congratulations!</span>
+                    </>
+                  ) : (
+                    <>
+                      <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
+                      <span>Test Cases Failed</span>
+                    </>
+                  )}
+                </div>
+                {submissionResult.passed && nextChallenge && (
+                  <button
+                    onClick={() => selectChallenge(nextChallenge)}
+                    className="rounded-lg bg-[#09664f] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#07523f]"
+                  >
+                    Next Problem &rarr;
+                  </button>
                 )}
               </div>
 
