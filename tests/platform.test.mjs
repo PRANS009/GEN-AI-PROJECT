@@ -4,6 +4,7 @@ import { executeSql, evaluateChallenge } from "../workers/preview.mjs";
 import { generateApiKey, hashKey, verifyAuthHeader } from "../src/server/api-keys.ts";
 import { signPayload } from "../src/server/webhooks.ts";
 import { requestGemini, explainSql, fixSql, optimizeSql } from "../src/server/ai.ts";
+import curriculum from "../src/content/curriculum.ts";
 
 test("arbitrary SQL query execution in sandboxed SQLite worker", async () => {
   const result = await executeSql("student_management", "SELECT name, marks FROM students WHERE marks > 80 ORDER BY marks DESC;");
@@ -78,4 +79,12 @@ test("AI query assistant generates, explains, fixes, and optimizes SQL queries",
 
   const optimized = await optimizeSql("SELECT * FROM students;", "student_management");
   assert.ok(optimized.suggestions.length > 0);
+});
+
+test("all 12 curriculum challenges execute and pass their reference solutions", async () => {
+  assert.equal(curriculum.challenges.length, 12);
+  for (const ch of curriculum.challenges) {
+    const res = await evaluateChallenge(ch.database, ch.solutionSql, ch.solutionSql);
+    assert.equal(res.passed, true, `Challenge ${ch.id} failed self-check: ${res.feedback}`);
+  }
 });

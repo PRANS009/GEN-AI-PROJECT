@@ -172,7 +172,7 @@
       "difficulty": "Beginner",
       "title": "High Honor Roll Students",
       "database": "student_management",
-      "description": "Find all students who scored above 85 marks. Order them from highest marks to lowest marks.",
+      "description": "Find all students who scored above 85 marks. Return name and marks ordered from highest marks to lowest marks.",
       "starterSql": "SELECT name, marks FROM students WHERE ...",
       "solutionSql": "SELECT name, marks FROM students WHERE marks > 85 ORDER BY marks DESC;",
       "hints": [
@@ -183,13 +183,13 @@
     {
       "id": "chal_2",
       "difficulty": "Beginner",
-      "title": "Active Books Catalogue",
+      "title": "Library Book Catalogue",
       "database": "library_management",
-      "description": "Select the title and isbn of all books published in year 1925 or later, sorted by title alphabetically.",
-      "starterSql": "SELECT title, isbn FROM books WHERE ...",
-      "solutionSql": "SELECT title, isbn FROM books WHERE publication_year >= 1925 ORDER BY title ASC;",
+      "description": "Select the id and title of all books in the library catalogue, sorted alphabetically by title.",
+      "starterSql": "SELECT id, title FROM books ORDER BY ...",
+      "solutionSql": "SELECT id, title FROM books ORDER BY title ASC;",
       "hints": [
-        "Filter using publication_year >= 1925",
+        "Select id and title from books",
         "Sort with ORDER BY title ASC"
       ]
     },
@@ -198,54 +198,132 @@
       "difficulty": "Intermediate",
       "title": "Course Enrolment Roster",
       "database": "student_management",
-      "description": "List each student's name, the title of the course they are enrolled in, and the enrolment term. Order by student name ascending.",
+      "description": "List each student's name, the title of the course they are enrolled in, and the enrolment term. Order by student name ascending, then course title ascending.",
       "starterSql": "SELECT s.name, c.title, e.term FROM students s ...",
-      "solutionSql": "SELECT s.name, c.title, e.term FROM students s INNER JOIN enrolments e ON s.id = e.student_id INNER JOIN courses c ON c.id = e.course_id ORDER BY s.name ASC;",
+      "solutionSql": "SELECT s.name, c.title, e.term FROM students s INNER JOIN enrolments e ON s.id = e.student_id INNER JOIN courses c ON c.id = e.course_id ORDER BY s.name ASC, c.title ASC;",
       "hints": [
         "Join students with enrolments on s.id = e.student_id",
         "Join courses on c.id = e.course_id",
-        "Order by s.name ASC"
+        "Order by s.name ASC, c.title ASC"
       ]
     },
     {
       "id": "chal_4",
       "difficulty": "Intermediate",
-      "title": "Highest Earning Managers",
+      "title": "Top Earners by Department",
       "database": "employee_management",
-      "description": "Find all employees who have a salary of 90000 or greater and have a non-null department. Return their name, salary, and department_id ordered by salary descending.",
+      "description": "Find all employees who have a salary of 75000 or greater and belong to a non-null department. Return name, salary, and department_id ordered by salary descending.",
       "starterSql": "SELECT name, salary, department_id FROM employees WHERE ...",
-      "solutionSql": "SELECT name, salary, department_id FROM employees WHERE salary >= 90000 AND department_id IS NOT NULL ORDER BY salary DESC;",
+      "solutionSql": "SELECT name, salary, department_id FROM employees WHERE salary >= 75000 AND department_id IS NOT NULL ORDER BY salary DESC;",
       "hints": [
-        "Check salary >= 90000",
+        "Check salary >= 75000",
         "Check department_id IS NOT NULL"
       ]
     },
     {
       "id": "chal_5",
       "difficulty": "Advanced",
-      "title": "Customer Lifetime Expenditure",
+      "title": "Customer Order Revenue",
       "database": "ecommerce",
-      "description": "Calculate each customer's total expenditure in dollars (convert total_cents / 100.0). Return customer full_name and total_spent rounded to 2 decimal places, ordered by total_spent descending.",
-      "starterSql": "SELECT c.full_name, ROUND(SUM(o.total_cents) / 100.0, 2) as total_spent FROM customers c ...",
-      "solutionSql": "SELECT c.full_name, ROUND(SUM(o.total_cents) / 100.0, 2) as total_spent FROM customers c INNER JOIN orders o ON c.id = o.customer_id GROUP BY c.id ORDER BY total_spent DESC;",
+      "description": "Calculate each ordering customer's total expenditure in dollars from order_items (quantity * unit_price_cents / 100.0). Return customer name and total_spent rounded to 2 decimal places, ordered by total_spent descending.",
+      "starterSql": "SELECT c.name, ROUND(SUM(oi.quantity * oi.unit_price_cents) / 100.0, 2) AS total_spent FROM customers c ...",
+      "solutionSql": "SELECT c.name, ROUND(SUM(oi.quantity * oi.unit_price_cents) / 100.0, 2) AS total_spent FROM customers c INNER JOIN orders o ON c.id = o.customer_id INNER JOIN order_items oi ON o.id = oi.order_id GROUP BY c.id, c.name ORDER BY total_spent DESC;",
       "hints": [
-        "Join customers with orders on c.id = o.customer_id",
-        "GROUP BY c.id",
+        "Join customers -> orders -> order_items",
+        "GROUP BY c.id, c.name",
         "Order by total_spent DESC"
       ]
     },
     {
       "id": "chal_6",
       "difficulty": "Advanced",
-      "title": "Overdue & Unreturned Loans",
+      "title": "Open & Unreturned Loans",
       "database": "library_management",
-      "description": "List all active loans where returned_on IS NULL. Return member full_name, book title, and loaned_on date, ordered by loaned_on ascending.",
-      "starterSql": "SELECT m.full_name, b.title, l.loaned_on FROM loans l ...",
-      "solutionSql": "SELECT m.full_name, b.title, l.loaned_on FROM loans l INNER JOIN members m ON l.member_id = m.id INNER JOIN books b ON l.book_id = b.id WHERE l.returned_on IS NULL ORDER BY l.loaned_on ASC;",
+      "description": "List all active loans where returned_on IS NULL. Return member name, book title, and loaned_on date, ordered by loaned_on ascending.",
+      "starterSql": "SELECT m.name, b.title, l.loaned_on FROM loans l ...",
+      "solutionSql": "SELECT m.name, b.title, l.loaned_on FROM loans l INNER JOIN members m ON l.member_id = m.id INNER JOIN books b ON l.book_id = b.id WHERE l.returned_on IS NULL ORDER BY l.loaned_on ASC;",
       "hints": [
         "Join loans with members and books",
         "Filter where l.returned_on IS NULL",
         "Order by l.loaned_on ASC"
+      ]
+    },
+    {
+      "id": "chal_7",
+      "difficulty": "Beginner",
+      "title": "Affordable Store Products",
+      "database": "ecommerce",
+      "description": "Find all products priced under 2000 cents ($20.00). Return name and price_cents ordered from lowest price to highest.",
+      "starterSql": "SELECT name, price_cents FROM products WHERE ...",
+      "solutionSql": "SELECT name, price_cents FROM products WHERE price_cents < 2000 ORDER BY price_cents ASC;",
+      "hints": [
+        "Use WHERE price_cents < 2000",
+        "Sort with ORDER BY price_cents ASC"
+      ]
+    },
+    {
+      "id": "chal_8",
+      "difficulty": "Beginner",
+      "title": "Top-Level Managers",
+      "database": "employee_management",
+      "description": "Find all employees who do not report to any manager (manager_id IS NULL). Return id, name, and salary ordered by salary descending.",
+      "starterSql": "SELECT id, name, salary FROM employees WHERE ...",
+      "solutionSql": "SELECT id, name, salary FROM employees WHERE manager_id IS NULL ORDER BY salary DESC;",
+      "hints": [
+        "Use IS NULL (not = NULL) to check manager_id",
+        "Sort by salary DESC"
+      ]
+    },
+    {
+      "id": "chal_9",
+      "difficulty": "Intermediate",
+      "title": "Department Headcount & Average Salary",
+      "database": "employee_management",
+      "description": "For every department (including departments with zero employees), return department name, headcount, and average salary rounded to 2 decimal places. Order by headcount descending, then department name ascending.",
+      "starterSql": "SELECT d.name, COUNT(e.id) AS headcount, ROUND(AVG(e.salary), 2) AS avg_salary FROM departments d ...",
+      "solutionSql": "SELECT d.name, COUNT(e.id) AS headcount, ROUND(AVG(e.salary), 2) AS avg_salary FROM departments d LEFT JOIN employees e ON d.id = e.department_id GROUP BY d.id, d.name ORDER BY headcount DESC, d.name ASC;",
+      "hints": [
+        "Use LEFT JOIN so departments without employees are included",
+        "Use COUNT(e.id) instead of COUNT(*) so empty departments show 0"
+      ]
+    },
+    {
+      "id": "chal_10",
+      "difficulty": "Intermediate",
+      "title": "Books and Their Authors",
+      "database": "library_management",
+      "description": "Return each book's title alongside its author's name (aliased as author_name), sorted alphabetically by book title.",
+      "starterSql": "SELECT b.title, a.name AS author_name FROM books b ...",
+      "solutionSql": "SELECT b.title, a.name AS author_name FROM books b INNER JOIN authors a ON b.author_id = a.id ORDER BY b.title ASC;",
+      "hints": [
+        "Join books with authors on b.author_id = a.id",
+        "Sort by b.title ASC"
+      ]
+    },
+    {
+      "id": "chal_11",
+      "difficulty": "Advanced",
+      "title": "Unenrolled Students",
+      "database": "student_management",
+      "description": "Find all students who are not enrolled in any course yet. Return id, name, and marks ordered by id ascending.",
+      "starterSql": "SELECT s.id, s.name, s.marks FROM students s ...",
+      "solutionSql": "SELECT s.id, s.name, s.marks FROM students s LEFT JOIN enrolments e ON s.id = e.student_id WHERE e.student_id IS NULL ORDER BY s.id ASC;",
+      "hints": [
+        "Use LEFT JOIN enrolments e ON s.id = e.student_id",
+        "Filter with WHERE e.student_id IS NULL"
+      ]
+    },
+    {
+      "id": "chal_12",
+      "difficulty": "Advanced",
+      "title": "Above-Average Earners",
+      "database": "employee_management",
+      "description": "Using a subquery, find all employees whose salary is strictly greater than the company-wide average salary. Return name and salary ordered by salary descending.",
+      "starterSql": "SELECT name, salary FROM employees WHERE salary > (...)",
+      "solutionSql": "SELECT name, salary FROM employees WHERE salary > (SELECT AVG(salary) FROM employees) ORDER BY salary DESC;",
+      "hints": [
+        "Compare salary > (SELECT AVG(salary) FROM employees)",
+        "Order by salary DESC"
       ]
     }
   ]
