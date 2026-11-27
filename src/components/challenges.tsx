@@ -11,10 +11,20 @@ import {
   AlertCircle,
 } from "lucide-react";
 
-export function ChallengesView() {
+export function ChallengesView({
+  initialChallengeId,
+  initialSolved = [],
+  userEmail = null,
+}: {
+  initialChallengeId?: string;
+  initialSolved?: string[];
+  userEmail?: string | null;
+}) {
   const challenges = rawCurriculum.challenges;
-  const [activeChallengeId, setActiveChallengeId] = useState(challenges[0].id);
-  const [sql, setSql] = useState(challenges[0].starterSql);
+  const startingChallenge =
+    challenges.find((c) => c.id === initialChallengeId) || challenges[0];
+  const [activeChallengeId, setActiveChallengeId] = useState(startingChallenge.id);
+  const [sql, setSql] = useState(startingChallenge.starterSql);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [submissionResult, setSubmissionResult] = useState<{
@@ -23,7 +33,7 @@ export function ChallengesView() {
     studentResult?: { columns: string[]; rows: (number | string | null)[][]; count: number };
     expectedResult?: { columns: string[]; rows: (number | string | null)[][]; count: number };
   } | null>(null);
-  const [solvedList, setSolvedList] = useState<string[]>([]);
+  const [solvedList, setSolvedList] = useState<string[]>(initialSolved);
 
   const activeChallenge =
     challenges.find((c) => c.id === activeChallengeId) || challenges[0];
@@ -71,7 +81,9 @@ export function ChallengesView() {
             <h2 className="font-bold text-base text-[var(--ink)]">Practice Challenges</h2>
           </div>
           <p className="text-xs text-[var(--muted)] mb-4">
-            Test your real-world SQL skills against automated grading test fixtures.
+            {userEmail
+              ? `Challenge progress saved to ${userEmail}.`
+              : "Test your real-world SQL skills against automated grading test fixtures."}
           </p>
 
           <div className="space-y-2">
@@ -93,6 +105,14 @@ export function ChallengesView() {
                     setSql(c.starterSql);
                     setSubmissionResult(null);
                     setShowHint(false);
+                    void fetch("/api/account/state", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        last_route: "/challenges",
+                        last_challenge_id: c.id,
+                      }),
+                    });
                   }}
                   className={`w-full flex items-center justify-between text-left p-3 rounded-lg border transition-colors ${
                     isSelected

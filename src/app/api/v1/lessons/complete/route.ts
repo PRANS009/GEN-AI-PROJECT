@@ -2,6 +2,7 @@ import { z } from "zod";
 import { markLessonComplete } from "@/server/curriculum";
 import { logActivity } from "@/server/activity";
 import { account } from "@/server/auth";
+import { saveUserLearningState } from "@/server/user-state";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +26,14 @@ export async function POST(request: Request) {
       body.data.lessonId,
       user?.id || "anonymous-learner",
     );
+
+    if (user) {
+      await saveUserLearningState(user.id, user.email ?? null, {
+        last_route: "/learn",
+        last_lesson_id: body.data.lessonId,
+        completed_lessons: [body.data.lessonId],
+      });
+    }
 
     await logActivity({
       userId: user?.id ?? null,

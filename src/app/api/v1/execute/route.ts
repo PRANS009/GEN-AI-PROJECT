@@ -4,6 +4,8 @@ import { verifyAuthHeader } from "@/server/api-keys";
 import { dispatchWebhookEvent } from "@/server/webhooks";
 import { recordHistory } from "@/server/history";
 import { logActivity } from "@/server/activity";
+import { account } from "@/server/auth";
+import { saveUserLearningState } from "@/server/user-state";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -70,6 +72,17 @@ export async function POST(request: Request) {
           via: auth.via || "session",
         },
       });
+
+      if (auth.via === "session") {
+        const user = await account();
+        if (user) {
+          void saveUserLearningState(user.id, user.email ?? null, {
+            last_route: "/playground",
+            last_database: body.data.database,
+            playground_sql: body.data.sql,
+          });
+        }
+      }
 
       // Dispatch webhook
       void dispatchWebhookEvent("query.executed", {

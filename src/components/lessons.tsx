@@ -12,9 +12,17 @@ import {
   Code2,
 } from "lucide-react";
 
-export function LessonsView() {
-  const [activeLessonId, setActiveLessonId] = useState("lesson_1");
-  const [completed, setCompleted] = useState<string[]>([]);
+export function LessonsView({
+  initialLessonId = "lesson_1",
+  initialCompleted = [],
+  userEmail = null,
+}: {
+  initialLessonId?: string;
+  initialCompleted?: string[];
+  userEmail?: string | null;
+}) {
+  const [activeLessonId, setActiveLessonId] = useState(initialLessonId);
+  const [completed, setCompleted] = useState<string[]>(initialCompleted);
   const [exerciseSql, setExerciseSql] = useState("");
   const [runResult, setRunResult] = useState<{
     columns?: string[];
@@ -67,7 +75,9 @@ export function LessonsView() {
             <h2 className="font-bold text-base text-[var(--ink)]">SQL Learning Curriculum</h2>
           </div>
           <p className="text-xs text-[var(--muted)] mb-4">
-            Progress through Beginner, Intermediate, and Advanced SQL concepts with interactive practice.
+            {userEmail
+              ? `Progress saved to ${userEmail}.`
+              : "Sign in to save your lesson progress across devices."}
           </p>
 
           <div className="space-y-4">
@@ -88,6 +98,14 @@ export function LessonsView() {
                           setExerciseSql(lesson.starterSql);
                           setRunResult(null);
                           setShowHint(false);
+                          void fetch("/api/account/state", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              last_route: "/learn",
+                              last_lesson_id: lesson.id,
+                            }),
+                          });
                         }}
                         className={`w-full flex items-center justify-between text-left px-3 py-2 rounded-lg text-xs transition-colors border ${
                           isSelected

@@ -24,9 +24,15 @@ interface QueryResult {
   durationMs: number;
 }
 
-export function SqlPlayground({ defaultDb = "student_management" }: { defaultDb?: string }) {
+export function SqlPlayground({
+  defaultDb = "student_management",
+  initialSql = "SELECT * FROM students WHERE marks > 80 ORDER BY marks DESC;",
+}: {
+  defaultDb?: string;
+  initialSql?: string;
+}) {
   const [dbId, setDbId] = useState(defaultDb);
-  const [sql, setSql] = useState("SELECT * FROM students WHERE marks > 80 ORDER BY marks DESC;");
+  const [sql, setSql] = useState(initialSql);
   const [prompt, setPrompt] = useState("");
   const [isRunning, setIsRunning] = useState(false);
   const [isAiLoading, setIsAiLoading] = useState(false);
@@ -223,7 +229,15 @@ export function SqlPlayground({ defaultDb = "student_management" }: { defaultDb?
           <Database className="h-4 w-4 text-[var(--accent)]" />
           <select
             value={dbId}
-            onChange={(e) => setDbId(e.target.value)}
+            onChange={(e) => {
+              const nextDb = e.target.value;
+              setDbId(nextDb);
+              void fetch("/api/account/state", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ last_route: "/playground", last_database: nextDb }),
+              });
+            }}
             className="rounded-lg border border-[var(--line)] bg-[var(--surface)] px-3 py-1.5 text-sm text-[var(--ink)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
           >
             {datasets.map((d) => (

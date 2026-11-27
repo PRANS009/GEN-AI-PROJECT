@@ -2,6 +2,8 @@ import { z } from "zod";
 import { submitChallenge } from "@/server/curriculum";
 import { verifyAuthHeader } from "@/server/api-keys";
 import { logActivity } from "@/server/activity";
+import { account } from "@/server/auth";
+import { saveUserLearningState } from "@/server/user-state";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -34,6 +36,15 @@ export async function POST(request: Request) {
 
     const evaluation = await submitChallenge(body.data.challengeId, body.data.sql, auth.ownerId);
     const durationMs = Math.round(performance.now() - startedAt);
+
+    const user = await account();
+    if (user) {
+      await saveUserLearningState(user.id, user.email ?? null, {
+        last_route: "/challenges",
+        last_challenge_id: body.data.challengeId,
+        ...(evaluation.passed ? { solved_challenges: [body.data.challengeId] } : {}),
+      });
+    }
 
     void logActivity({
       eventType: evaluation.passed ? "challenge.completed" : "challenge.attempted",

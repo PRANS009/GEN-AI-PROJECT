@@ -4,6 +4,7 @@ import { z } from "zod";
 import { authClient, account, serviceClient } from "@/server/auth";
 import { appOrigin } from "@/config/studio";
 import { logActivity } from "@/server/activity";
+import { getUserLearningState } from "@/server/user-state";
 
 export async function credentials(form: FormData) {
   const create = form.get("mode") === "register";
@@ -138,6 +139,13 @@ export async function credentials(form: FormData) {
     description: "User signed in with password",
     updateLoginAt: true,
   });
+
+  if (data.user?.id) {
+    const saved = await getUserLearningState(data.user.id, data.user.email ?? null);
+    if (saved.last_route && saved.last_route !== "/") {
+      redirect(saved.last_route);
+    }
+  }
 
   redirect("/account");
 }

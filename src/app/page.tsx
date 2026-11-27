@@ -14,18 +14,35 @@ import { listHistory } from "@/server/history";
 import { getStats } from "@/server/curriculum";
 import { account } from "@/server/auth";
 import { queryActivityLogs, getUserSummary } from "@/server/activity";
+import { getUserLearningState } from "@/server/user-state";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const user = await account();
-  const userSummary = user ? await getUserSummary(user.id) : null;
-  const recentActivity = user
-    ? (await queryActivityLogs({ userId: user.id, page: 1, limit: 5 }, false)).items
-    : [];
+  const [userSummary, learningState, recentActivity] = user
+    ? await Promise.all([
+        getUserSummary(user.id),
+        getUserLearningState(user.id, user.email ?? null),
+        queryActivityLogs({ userId: user.id, page: 1, limit: 5 }, false).then(
+          (r) => r.items,
+        ),
+      ])
+    : [null, null, []];
   const count = datasets.reduce((total, d) => total + d.tables.length, 0);
   const history = listHistory(20);
   const stats = getStats();
+  const completedLessonsCount = learningState
+    ? learningState.completed_lessons.length
+    : stats.completedLessons;
+  const solvedChallengesCount = learningState
+    ? learningState.solved_challenges.length
+    : stats.solvedChallenges;
+  const masteryPct = Math.round(
+    ((completedLessonsCount + solvedChallengesCount) /
+      Math.max(1, stats.totalLessons + stats.totalChallenges)) *
+      100,
+  );
   const successfulQueries = userSummary
     ? userSummary.queriesSucceeded
     : history.filter((h) => h.status === "success").length;
@@ -43,6 +60,27 @@ export default async function Home() {
           Intelligent AI Database Query Assistant and SQL Learning Platform.
         </p>
       </div>
+
+      {/* Continue where you left off */}
+      {user && learningState && (
+        <div className="rounded-xl border border-[var(--accent)] bg-[var(--tint)] p-4 flex flex-wrap items-center justify-between gap-4">
+          <div className="space-y-0.5">
+            <p className="text-xs font-semibold uppercase tracking-wider text-[var(--accent)]">
+              Continue where you left off · {user.email}
+            </p>
+            <p className="text-sm font-medium text-[var(--ink)]">
+              Last workspace: <span className="font-mono">{learningState.last_route}</span> · Database:{" "}
+              <span className="font-mono">{learningState.last_database}</span>
+            </p>
+          </div>
+          <Link
+            href={learningState.last_route || "/learn"}
+            className="rounded-lg bg-[#09664f] px-4 py-2 text-xs font-semibold text-white hover:bg-[#07523f]"
+          >
+            Resume Session &rarr;
+          </Link>
+        </div>
+      )}
 
       {/* Metrics Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -65,7 +103,7 @@ export default async function Home() {
             <GraduationCap className="h-4 w-4 text-sky-500" />
           </div>
           <div className="mt-2 text-2xl font-bold font-mono text-[var(--ink)]">
-            {stats.completedLessons} <span className="text-sm font-normal text-[var(--muted)]">/ {stats.totalLessons}</span>
+            {completedLessonsCount} <span className="text-sm font-normal text-[var(--muted)]">/ {stats.totalLessons}</span>
           </div>
           <span className="text-[11px] text-sky-600 dark:text-sky-400">
             Beginner & Intermediate
@@ -78,7 +116,7 @@ export default async function Home() {
             <Trophy className="h-4 w-4 text-amber-500" />
           </div>
           <div className="mt-2 text-2xl font-bold font-mono text-[var(--ink)]">
-            {stats.solvedChallenges} <span className="text-sm font-normal text-[var(--muted)]">/ {stats.totalChallenges}</span>
+            {solvedChallengesCount} <span className="text-sm font-normal text-[var(--muted)]">/ {stats.totalChallenges}</span>
           </div>
           <span className="text-[11px] text-amber-600 dark:text-amber-400">
             Multiset Automated Grading
@@ -91,7 +129,7 @@ export default async function Home() {
             <Flame className="h-4 w-4 text-rose-500" />
           </div>
           <div className="mt-2 text-2xl font-bold font-mono text-[var(--ink)]">
-            {stats.progressPercentage}%
+            {masteryPct}%
           </div>
           <span className="text-[11px] text-[var(--muted)]">Overall Mastery</span>
         </div>
