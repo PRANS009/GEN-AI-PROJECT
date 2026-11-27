@@ -16,12 +16,23 @@ export default async function Account({
     .select("display_name")
     .eq("id", user.id)
     .single();
+  const metaUsername =
+    typeof user.user_metadata?.username === "string"
+      ? user.user_metadata.username
+      : null;
+  const metaSkill =
+    typeof user.user_metadata?.skill_level === "string"
+      ? user.user_metadata.skill_level
+      : "Beginner";
   const { notice } = await searchParams;
   return (
     <div className="page">
       <div className="heading">
         <h1>Your account</h1>
-        <p>{user.email}</p>
+        <p>
+          {user.email}
+          {metaUsername ? ` · @${metaUsername}` : ""} · {metaSkill}
+        </p>
       </div>
       <section className="account-card">
         <h2>Profile</h2>

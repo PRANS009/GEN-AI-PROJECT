@@ -1,30 +1,58 @@
 "use server";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { authClient, account } from "@/server/auth";
+import { authClient, account, serviceClient } from "@/server/auth";
 import { appOrigin } from "@/config/studio";
 import { logActivity } from "@/server/activity";
 
 export async function credentials(form: FormData) {
   const create = form.get("mode") === "register";
-  const inputs = z
-    .object({
-      email: z.email().max(254),
-      password: z
-        .string()
-        .min(create ? 10 : 1)
-        .max(128),
-    })
-    .safeParse({ email: form.get("email"), password: form.get("password") });
-  if (!inputs.success) redirect("/login?notice=input");
-  const client = await authClient();
-  if (!client) redirect("/login?notice=unavailable");
 
   if (create) {
+    const rawUsername = String(form.get("username") || "").trim();
+    if (!/^[a-zA-Z0-9_]{3,30}$/.test(rawUsername)) {
+      redirect("/login?mode=register&notice=username");
+    }
+
+    const inputs = z
+      .object({
+        fullName: z.string().trim().min(2).max(60),
+        username: z.string().regex(/^[a-zA-Z0-9_]{3,30}$/),
+        email: z.email().max(254),
+        skillLevel: z.enum(["Beginner", "Intermediate", "Advanced"]).default("Beginner"),
+        password: z.string().min(10).max(128),
+        confirmPassword: z.string().min(10).max(128),
+      })
+      .safeParse({
+        fullName: form.get("fullName"),
+        username: rawUsername,
+        email: form.get("email"),
+        skillLevel: form.get("skillLevel") || "Beginner",
+        password: form.get("password"),
+        confirmPassword: form.get("confirmPassword"),
+      });
+
+    if (!inputs.success) redirect("/login?mode=register&notice=input");
+    if (inputs.data.password !== inputs.data.confirmPassword) {
+      redirect("/login?mode=register&notice=mismatch");
+    }
+
+    const client = await authClient();
+    if (!client) redirect("/login?mode=register&notice=unavailable");
+
     const { data, error } = await client.auth.signUp({
-      ...inputs.data,
-      options: { emailRedirectTo: appOrigin() + "/auth/callback" },
+      email: inputs.data.email,
+      password: inputs.data.password,
+      options: {
+        emailRedirectTo: appOrigin() + "/auth/callback",
+        data: {
+          full_name: inputs.data.fullName,
+          username: inputs.data.username,
+          skill_level: inputs.data.skillLevel,
+        },
+      },
     });
+
     if (error) {
       await logActivity({
         userId: null,
@@ -36,9 +64,25 @@ export async function credentials(form: FormData) {
         metadata: { reason: error.name },
       });
       if (error.name === "AuthRetryableFetchError" || error.status === 0)
-        redirect("/login?notice=unavailable");
-      redirect("/login?notice=signup");
+        redirect("/login?mode=register&notice=unavailable");
+      redirect("/login?mode=register&notice=signup");
     }
+
+    if (data.user?.id) {
+      const adminDb = serviceClient();
+      const db = adminDb || (data.session ? client : null);
+      if (db) {
+        await db
+          .from("profiles")
+          .update({
+            display_name: inputs.data.fullName,
+            username: inputs.data.username,
+            skill_level: inputs.data.skillLevel,
+          })
+          .eq("id", data.user.id);
+      }
+    }
+
     await logActivity({
       userId: data.user?.id ?? null,
       eventType: "auth.register",
@@ -46,38 +90,55 @@ export async function credentials(form: FormData) {
       action: "register",
       status: "success",
       description: "New user registered",
-      metadata: { hasSession: Boolean(data.session) },
+      metadata: {
+        hasSession: Boolean(data.session),
+        skillLevel: inputs.data.skillLevel,
+      },
       updateLoginAt: Boolean(data.session),
     });
+
     if (!data.session) redirect("/login?notice=confirm");
-  } else {
-    const { data, error } = await client.auth.signInWithPassword(inputs.data);
-    if (error) {
-      await logActivity({
-        userId: null,
-        eventType: "auth.login",
-        module: "auth",
-        action: "login",
-        status: "failure",
-        description: "Failed login attempt",
-        metadata: { reason: error.name },
-      });
-      if (error.name === "AuthRetryableFetchError" || error.status === 0)
-        redirect("/login?notice=unavailable");
-      if (error.message.toLowerCase().includes("email not confirmed"))
-        redirect("/login?notice=unconfirmed");
-      redirect("/login?notice=signin");
-    }
+    redirect("/account");
+  }
+
+  const inputs = z
+    .object({
+      email: z.email().max(254),
+      password: z.string().min(1).max(128),
+    })
+    .safeParse({ email: form.get("email"), password: form.get("password") });
+  if (!inputs.success) redirect("/login?notice=input");
+  const client = await authClient();
+  if (!client) redirect("/login?notice=unavailable");
+
+  const { data, error } = await client.auth.signInWithPassword(inputs.data);
+  if (error) {
     await logActivity({
-      userId: data.user?.id ?? null,
+      userId: null,
       eventType: "auth.login",
       module: "auth",
       action: "login",
-      status: "success",
-      description: "User signed in with password",
-      updateLoginAt: true,
+      status: "failure",
+      description: "Failed login attempt",
+      metadata: { reason: error.name },
     });
+    if (error.name === "AuthRetryableFetchError" || error.status === 0)
+      redirect("/login?notice=unavailable");
+    if (error.message.toLowerCase().includes("email not confirmed"))
+      redirect("/login?notice=unconfirmed");
+    redirect("/login?notice=signin");
   }
+
+  await logActivity({
+    userId: data.user?.id ?? null,
+    eventType: "auth.login",
+    module: "auth",
+    action: "login",
+    status: "success",
+    description: "User signed in with password",
+    updateLoginAt: true,
+  });
+
   redirect("/account");
 }
 

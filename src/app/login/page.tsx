@@ -7,7 +7,9 @@ import { databaseConfig } from "@/config/studio";
 import { Button } from "@/components/ui/button";
 
 const notices: Record<string, string> = {
-  input: "Enter a valid email and a password of the required length.",
+  input: "Enter valid details (full name, username, email, and password).",
+  mismatch: "Passwords do not match. Please re-enter the same password.",
+  username: "Username must be 3–30 characters using letters, numbers, or underscores.",
   signin:
     "Sign-in failed. Check your email and password, or create an account if you are new to this deployment.",
   unconfirmed:
@@ -19,6 +21,7 @@ const notices: Record<string, string> = {
   unavailable:
     "Authentication is unavailable. Check the Supabase configuration.",
 };
+
 export default async function Login({
   searchParams,
 }: {
@@ -53,10 +56,60 @@ export default async function Login({
             name="mode"
             value={create ? "register" : "signin"}
           />
+          {create && (
+            <>
+              <label>
+                Full Name
+                <input
+                  name="fullName"
+                  type="text"
+                  autoComplete="name"
+                  placeholder="Prans Jangra"
+                  minLength={2}
+                  maxLength={60}
+                  required
+                />
+              </label>
+              <label>
+                Username
+                <input
+                  name="username"
+                  type="text"
+                  autoComplete="username"
+                  placeholder="prans_sql"
+                  pattern="[a-zA-Z0-9_]+"
+                  title="3-30 letters, numbers, or underscores"
+                  minLength={3}
+                  maxLength={30}
+                  required
+                />
+              </label>
+            </>
+          )}
           <label>
             Email
-            <input name="email" type="email" autoComplete="email" required />
+            <input
+              name="email"
+              type="email"
+              autoComplete="email"
+              placeholder="you@example.com"
+              required
+            />
           </label>
+          {create && (
+            <label>
+              SQL Skill Level
+              <select
+                name="skillLevel"
+                defaultValue="Beginner"
+                className="w-full rounded-[7px] border border-[var(--line)] bg-[var(--surface)] px-3 py-2.5 text-sm text-[var(--ink)]"
+              >
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Advanced">Advanced</option>
+              </select>
+            </label>
+          )}
           <label>
             Password
             <input
@@ -68,7 +121,22 @@ export default async function Login({
               required
             />
           </label>
-          {create && <small>Use at least 10 characters.</small>}
+          {create && (
+            <>
+              <label>
+                Confirm Password
+                <input
+                  name="confirmPassword"
+                  type="password"
+                  autoComplete="new-password"
+                  minLength={10}
+                  maxLength={128}
+                  required
+                />
+              </label>
+              <small>Use at least 10 characters for your password.</small>
+            </>
+          )}
           <Button type="submit">{create ? "Create account" : "Sign in"}</Button>
         </form>
       )}
