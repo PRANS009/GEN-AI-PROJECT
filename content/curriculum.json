@@ -4,7 +4,7 @@
       "id": "mod_beginner",
       "level": "Beginner",
       "title": "Beginner SQL Foundations",
-      "description": "Master relational database basics, SELECT projections, WHERE filtering, ordering, and aggregation.",
+      "description": "Master relational database basics, SELECT projections, WHERE filtering, DISTINCT, LIKE, ordering, and aggregation.",
       "lessons": [
         {
           "id": "lesson_1",
@@ -53,6 +53,52 @@
             "Use ORDER BY name ASC",
             "Add LIMIT 2 at the end"
           ]
+        },
+        {
+          "id": "lesson_10",
+          "title": "Removing Duplicates with DISTINCT",
+          "database": "student_management",
+          "concept": "The DISTINCT keyword eliminates duplicate rows from the result set so each unique value appears only once.",
+          "syntax": "SELECT DISTINCT column_name FROM table_name;",
+          "example": "SELECT DISTINCT student_id FROM enrolments;",
+          "expectedOutput": "Unique student IDs that have at least one enrolment.",
+          "exercisePrompt": "Select all unique academic terms from the enrolments table.",
+          "starterSql": "SELECT DISTINCT term FROM enrolments;",
+          "solutionSql": "SELECT DISTINCT term FROM enrolments;",
+          "hints": [
+            "Place DISTINCT immediately after SELECT",
+            "Query the term column from enrolments"
+          ]
+        },
+        {
+          "id": "lesson_11",
+          "title": "Pattern Matching with LIKE & Wildcards",
+          "database": "library_management",
+          "concept": "The LIKE operator searches for a specified pattern in a text column using % (zero or more characters) and _ (single character).",
+          "syntax": "SELECT column1 FROM table_name WHERE column1 LIKE '%pattern%';",
+          "example": "SELECT id, title FROM books WHERE title LIKE '%Archive%';",
+          "expectedOutput": "Books whose title contains the word Archive.",
+          "exercisePrompt": "Find the id and title of books whose title contains the word 'Index'.",
+          "starterSql": "SELECT id, title FROM books WHERE title LIKE '%Index%';",
+          "solutionSql": "SELECT id, title FROM books WHERE title LIKE '%Index%';",
+          "hints": [
+            "Wrap Index in % wildcards: '%Index%'"
+          ]
+        },
+        {
+          "id": "lesson_12",
+          "title": "Basic Aggregate Functions (COUNT, AVG, MAX)",
+          "database": "student_management",
+          "concept": "Aggregate functions perform a calculation across a set of rows and return a single summary value.",
+          "syntax": "SELECT COUNT(*), AVG(col), MAX(col) FROM table_name;",
+          "example": "SELECT COUNT(*) AS total, MIN(marks) AS lowest FROM students;",
+          "expectedOutput": "Total count and lowest student mark.",
+          "exercisePrompt": "Calculate total_students, average marks rounded to 2 decimals (avg_marks), and highest mark (top_mark) from students.",
+          "starterSql": "SELECT COUNT(*) AS total_students, ROUND(AVG(marks), 2) AS avg_marks, MAX(marks) AS top_mark FROM students;",
+          "solutionSql": "SELECT COUNT(*) AS total_students, ROUND(AVG(marks), 2) AS avg_marks, MAX(marks) AS top_mark FROM students;",
+          "hints": [
+            "Use COUNT(*), ROUND(AVG(marks), 2), and MAX(marks)"
+          ]
         }
       ]
     },
@@ -60,7 +106,7 @@
       "id": "mod_intermediate",
       "level": "Intermediate",
       "title": "Joins, Aggregations & Subqueries",
-      "description": "Connect related tables with INNER and LEFT JOINs, calculate summary metrics with GROUP BY and HAVING.",
+      "description": "Connect related tables with INNER and LEFT JOINs, calculate summary metrics with GROUP BY, HAVING, UNION, and subqueries.",
       "lessons": [
         {
           "id": "lesson_4",
@@ -79,6 +125,21 @@
           ]
         },
         {
+          "id": "lesson_13",
+          "title": "Preserving Unmatched Rows with LEFT JOIN",
+          "database": "employee_management",
+          "concept": "A LEFT JOIN returns all rows from the left table and matched rows from the right table, filling NULL when no match exists.",
+          "syntax": "SELECT a.col, b.col FROM left_table a LEFT JOIN right_table b ON a.id = b.a_id;",
+          "example": "SELECT d.name, e.name FROM departments d LEFT JOIN employees e ON d.id = e.department_id;",
+          "expectedOutput": "Every department, including Operations which has NULL for employee.",
+          "exercisePrompt": "List all department names (as department) and employee names (as employee) ordered by d.id, e.id.",
+          "starterSql": "SELECT d.name AS department, e.name AS employee FROM departments d LEFT JOIN employees e ON d.id = e.department_id ORDER BY d.id, e.id;",
+          "solutionSql": "SELECT d.name AS department, e.name AS employee FROM departments d LEFT JOIN employees e ON d.id = e.department_id ORDER BY d.id, e.id;",
+          "hints": [
+            "Start from departments d and LEFT JOIN employees e"
+          ]
+        },
+        {
           "id": "lesson_5",
           "title": "Summarizing Data with GROUP BY & HAVING",
           "database": "employee_management",
@@ -86,12 +147,12 @@
           "syntax": "SELECT category, COUNT(*), AVG(val) FROM table GROUP BY category HAVING COUNT(*) > 1;",
           "example": "SELECT department_id, COUNT(*) as count, AVG(salary) as avg_sal FROM employees GROUP BY department_id;",
           "expectedOutput": "Number of employees and average salary per department.",
-          "exercisePrompt": "List department_id and average salary for departments with average salary above 80000.",
-          "starterSql": "SELECT department_id, AVG(salary) as avg_sal FROM employees GROUP BY department_id HAVING AVG(salary) > 80000;",
-          "solutionSql": "SELECT department_id, AVG(salary) as avg_sal FROM employees GROUP BY department_id HAVING AVG(salary) > 80000;",
+          "exercisePrompt": "List department_id and average salary for departments with average salary above 75000.",
+          "starterSql": "SELECT department_id, AVG(salary) as avg_sal FROM employees GROUP BY department_id HAVING AVG(salary) > 75000;",
+          "solutionSql": "SELECT department_id, AVG(salary) as avg_sal FROM employees GROUP BY department_id HAVING AVG(salary) > 75000;",
           "hints": [
             "Group by department_id",
-            "Use HAVING AVG(salary) > 80000"
+            "Use HAVING AVG(salary) > 75000"
           ]
         },
         {
@@ -108,6 +169,36 @@
           "hints": [
             "Use (SELECT AVG(salary) FROM employees) as the comparator in the WHERE clause."
           ]
+        },
+        {
+          "id": "lesson_14",
+          "title": "Combining Result Sets with UNION",
+          "database": "library_management",
+          "concept": "UNION combines the result sets of two or more SELECT statements into a single result set (UNION removes duplicates; UNION ALL keeps all rows).",
+          "syntax": "SELECT col FROM table1 UNION ALL SELECT col FROM table2;",
+          "example": "SELECT name FROM authors UNION SELECT name FROM members;",
+          "expectedOutput": "Combined list of all author and member names.",
+          "exercisePrompt": "Combine all authors and members with a role column ('Author' or 'Member'), ordered by role, name.",
+          "starterSql": "SELECT name, 'Author' AS role FROM authors UNION ALL SELECT name, 'Member' AS role FROM members ORDER BY role, name;",
+          "solutionSql": "SELECT name, 'Author' AS role FROM authors UNION ALL SELECT name, 'Member' AS role FROM members ORDER BY role, name;",
+          "hints": [
+            "Ensure both SELECT statements have the same number of columns"
+          ]
+        },
+        {
+          "id": "lesson_15",
+          "title": "Range Filtering with BETWEEN & IN",
+          "database": "student_management",
+          "concept": "BETWEEN checks whether a value lies within an inclusive range, and IN checks whether a value matches any item in a list.",
+          "syntax": "SELECT col FROM table WHERE col BETWEEN low AND high;",
+          "example": "SELECT name, marks FROM students WHERE id IN (1, 3);",
+          "expectedOutput": "Students with ID 1 or 3.",
+          "exercisePrompt": "Find id, name, and marks of students whose marks are BETWEEN 80 AND 95, ordered by marks descending.",
+          "starterSql": "SELECT id, name, marks FROM students WHERE marks BETWEEN 80 AND 95 ORDER BY marks DESC;",
+          "solutionSql": "SELECT id, name, marks FROM students WHERE marks BETWEEN 80 AND 95 ORDER BY marks DESC;",
+          "hints": [
+            "Use WHERE marks BETWEEN 80 AND 95"
+          ]
         }
       ]
     },
@@ -115,7 +206,7 @@
       "id": "mod_advanced",
       "level": "Advanced",
       "title": "Advanced SQL & Performance",
-      "description": "Common Table Expressions (CTEs), Window Functions, Indexing strategies, and Transactions.",
+      "description": "Common Table Expressions (CTEs), Window Functions, Query Optimization, Normalization, and Transactions.",
       "lessons": [
         {
           "id": "lesson_7",
@@ -149,6 +240,36 @@
           ]
         },
         {
+          "id": "lesson_16",
+          "title": "Partitioned Window Aggregates",
+          "database": "employee_management",
+          "concept": "Aggregate functions like SUM() and AVG() can be paired with OVER (PARTITION BY ...) to display group totals alongside each individual row.",
+          "syntax": "SELECT col, SUM(val) OVER (PARTITION BY group_col) FROM table;",
+          "example": "SELECT name, salary, AVG(salary) OVER () AS company_avg FROM employees;",
+          "expectedOutput": "Each employee paired with the company average salary.",
+          "exercisePrompt": "Show each employee's name, department_id, salary, and their department's total salary (dept_total_salary), ordered by department_id, salary DESC.",
+          "starterSql": "SELECT name, department_id, salary, SUM(salary) OVER (PARTITION BY department_id) AS dept_total_salary FROM employees ORDER BY department_id, salary DESC;",
+          "solutionSql": "SELECT name, department_id, salary, SUM(salary) OVER (PARTITION BY department_id) AS dept_total_salary FROM employees ORDER BY department_id, salary DESC;",
+          "hints": [
+            "Use SUM(salary) OVER (PARTITION BY department_id)"
+          ]
+        },
+        {
+          "id": "lesson_17",
+          "title": "Query Optimization & Index-Friendly Projections",
+          "database": "ecommerce",
+          "concept": "Selecting only needed columns instead of SELECT * and filtering on indexed primary/foreign keys reduces I/O and speeds up execution.",
+          "syntax": "SELECT t1.col, t2.col FROM t1 INNER JOIN t2 ON t1.fk = t2.pk WHERE t1.pk = ?;",
+          "example": "SELECT id, name FROM products WHERE id = 1;",
+          "expectedOutput": "Direct primary-key lookup without scanning unneeded columns.",
+          "exercisePrompt": "Project product name, quantity, and unit_price_cents for order_id = 1 by joining order_items and products, ordered by p.id.",
+          "starterSql": "SELECT p.name, oi.quantity, oi.unit_price_cents FROM order_items oi INNER JOIN products p ON oi.product_id = p.id WHERE oi.order_id = 1 ORDER BY p.id;",
+          "solutionSql": "SELECT p.name, oi.quantity, oi.unit_price_cents FROM order_items oi INNER JOIN products p ON oi.product_id = p.id WHERE oi.order_id = 1 ORDER BY p.id;",
+          "hints": [
+            "Filter early with WHERE oi.order_id = 1"
+          ]
+        },
+        {
           "id": "lesson_9",
           "title": "Transactions & ACID Guarantees",
           "database": "ecommerce",
@@ -161,6 +282,21 @@
           "solutionSql": "SELECT id, name, price_cents FROM products WHERE price_cents > 0 ORDER BY id;",
           "hints": [
             "Select id, name, price_cents from products."
+          ]
+        },
+        {
+          "id": "lesson_18",
+          "title": "Database Normalization & Multi-Table Foreign Keys",
+          "database": "library_management",
+          "concept": "Third Normal Form (3NF) eliminates redundant data by splitting entities into normalized tables linked by foreign keys.",
+          "syntax": "SELECT ... FROM child JOIN parent ON ... JOIN grandparent ON ...;",
+          "example": "SELECT b.title, a.name FROM books b INNER JOIN authors a ON b.author_id = a.id;",
+          "expectedOutput": "Normalized book and author pairs.",
+          "exercisePrompt": "Reconstruct full loan details (loan_id, book title, author_name, member_name) by joining loans, books, authors, and members ordered by l.id.",
+          "starterSql": "SELECT l.id AS loan_id, b.title, a.name AS author_name, m.name AS member_name FROM loans l INNER JOIN books b ON l.book_id = b.id INNER JOIN authors a ON b.author_id = a.id INNER JOIN members m ON l.member_id = m.id ORDER BY l.id;",
+          "solutionSql": "SELECT l.id AS loan_id, b.title, a.name AS author_name, m.name AS member_name FROM loans l INNER JOIN books b ON l.book_id = b.id INNER JOIN authors a ON b.author_id = a.id INNER JOIN members m ON l.member_id = m.id ORDER BY l.id;",
+          "hints": [
+            "Join loans -> books -> authors and loans -> members"
           ]
         }
       ]
@@ -194,6 +330,71 @@
       ]
     },
     {
+      "id": "chal_7",
+      "difficulty": "Beginner",
+      "title": "Affordable Store Products",
+      "database": "ecommerce",
+      "description": "Find all products priced under 2000 cents ($20.00). Return name and price_cents ordered from lowest price to highest.",
+      "starterSql": "SELECT name, price_cents FROM products WHERE ...",
+      "solutionSql": "SELECT name, price_cents FROM products WHERE price_cents < 2000 ORDER BY price_cents ASC;",
+      "hints": [
+        "Use WHERE price_cents < 2000",
+        "Sort with ORDER BY price_cents ASC"
+      ]
+    },
+    {
+      "id": "chal_8",
+      "difficulty": "Beginner",
+      "title": "Top-Level Managers",
+      "database": "employee_management",
+      "description": "Find all employees who do not report to any manager (manager_id IS NULL). Return id, name, and salary ordered by salary descending.",
+      "starterSql": "SELECT id, name, salary FROM employees WHERE ...",
+      "solutionSql": "SELECT id, name, salary FROM employees WHERE manager_id IS NULL ORDER BY salary DESC;",
+      "hints": [
+        "Use IS NULL (not = NULL) to check manager_id",
+        "Sort by salary DESC"
+      ]
+    },
+    {
+      "id": "chal_13",
+      "difficulty": "Beginner",
+      "title": "Distinct Enrolment Terms",
+      "database": "student_management",
+      "description": "Retrieve all unique academic terms from the enrolments table, ordered alphabetically.",
+      "starterSql": "SELECT DISTINCT ... FROM enrolments ORDER BY ...",
+      "solutionSql": "SELECT DISTINCT term FROM enrolments ORDER BY term ASC;",
+      "hints": [
+        "Use SELECT DISTINCT term",
+        "Sort with ORDER BY term ASC"
+      ]
+    },
+    {
+      "id": "chal_14",
+      "difficulty": "Beginner",
+      "title": "Returned Book Loans",
+      "database": "library_management",
+      "description": "Find all loans that have already been returned (returned_on IS NOT NULL). Return id, book_id, member_id, and returned_on ordered by id ascending.",
+      "starterSql": "SELECT id, book_id, member_id, returned_on FROM loans WHERE ...",
+      "solutionSql": "SELECT id, book_id, member_id, returned_on FROM loans WHERE returned_on IS NOT NULL ORDER BY id ASC;",
+      "hints": [
+        "Use WHERE returned_on IS NOT NULL",
+        "Order by id ASC"
+      ]
+    },
+    {
+      "id": "chal_15",
+      "difficulty": "Beginner",
+      "title": "Bulk Order Line Items",
+      "database": "ecommerce",
+      "description": "Find all order_items where quantity is 2 or more. Return order_id, product_id, and quantity ordered by product_id ascending.",
+      "starterSql": "SELECT order_id, product_id, quantity FROM order_items WHERE ...",
+      "solutionSql": "SELECT order_id, product_id, quantity FROM order_items WHERE quantity >= 2 ORDER BY product_id ASC;",
+      "hints": [
+        "Filter with WHERE quantity >= 2",
+        "Order by product_id ASC"
+      ]
+    },
+    {
       "id": "chal_3",
       "difficulty": "Intermediate",
       "title": "Course Enrolment Roster",
@@ -218,6 +419,71 @@
       "hints": [
         "Check salary >= 75000",
         "Check department_id IS NOT NULL"
+      ]
+    },
+    {
+      "id": "chal_9",
+      "difficulty": "Intermediate",
+      "title": "Department Headcount & Average Salary",
+      "database": "employee_management",
+      "description": "For every department (including departments with zero employees), return department name, headcount, and average salary rounded to 2 decimal places. Order by headcount descending, then department name ascending.",
+      "starterSql": "SELECT d.name, COUNT(e.id) AS headcount, ROUND(AVG(e.salary), 2) AS avg_salary FROM departments d ...",
+      "solutionSql": "SELECT d.name, COUNT(e.id) AS headcount, ROUND(AVG(e.salary), 2) AS avg_salary FROM departments d LEFT JOIN employees e ON d.id = e.department_id GROUP BY d.id, d.name ORDER BY headcount DESC, d.name ASC;",
+      "hints": [
+        "Use LEFT JOIN so departments without employees are included",
+        "Use COUNT(e.id) instead of COUNT(*) so empty departments show 0"
+      ]
+    },
+    {
+      "id": "chal_10",
+      "difficulty": "Intermediate",
+      "title": "Books and Their Authors",
+      "database": "library_management",
+      "description": "Return each book's title alongside its author's name (aliased as author_name), sorted alphabetically by book title.",
+      "starterSql": "SELECT b.title, a.name AS author_name FROM books b ...",
+      "solutionSql": "SELECT b.title, a.name AS author_name FROM books b INNER JOIN authors a ON b.author_id = a.id ORDER BY b.title ASC;",
+      "hints": [
+        "Join books with authors on b.author_id = a.id",
+        "Sort by b.title ASC"
+      ]
+    },
+    {
+      "id": "chal_16",
+      "difficulty": "Intermediate",
+      "title": "Product Units Sold",
+      "database": "ecommerce",
+      "description": "Calculate total units sold for each product that has been ordered. Return product name and total quantity aliased as units_sold, ordered by units_sold descending, then product name ascending.",
+      "starterSql": "SELECT p.name, SUM(oi.quantity) AS units_sold FROM products p ...",
+      "solutionSql": "SELECT p.name, SUM(oi.quantity) AS units_sold FROM products p INNER JOIN order_items oi ON p.id = oi.product_id GROUP BY p.id, p.name ORDER BY units_sold DESC, p.name ASC;",
+      "hints": [
+        "Join products with order_items on p.id = oi.product_id",
+        "GROUP BY p.id, p.name"
+      ]
+    },
+    {
+      "id": "chal_17",
+      "difficulty": "Intermediate",
+      "title": "Direct Reports & Their Managers",
+      "database": "employee_management",
+      "description": "Using a self-join on employees, list every employee who has a manager. Return employee_name, manager_name, and the employee's salary, ordered by employee_name ascending.",
+      "starterSql": "SELECT e.name AS employee_name, m.name AS manager_name, e.salary FROM employees e ...",
+      "solutionSql": "SELECT e.name AS employee_name, m.name AS manager_name, e.salary FROM employees e INNER JOIN employees m ON e.manager_id = m.id ORDER BY e.name ASC;",
+      "hints": [
+        "Join employees e with employees m ON e.manager_id = m.id",
+        "Order by e.name ASC"
+      ]
+    },
+    {
+      "id": "chal_18",
+      "difficulty": "Intermediate",
+      "title": "Course Enrolment Counts",
+      "database": "student_management",
+      "description": "For each course, return its title and the number of enrolled students (enrolled_count). Order by enrolled_count descending, then course title ascending.",
+      "starterSql": "SELECT c.title, COUNT(e.student_id) AS enrolled_count FROM courses c ...",
+      "solutionSql": "SELECT c.title, COUNT(e.student_id) AS enrolled_count FROM courses c LEFT JOIN enrolments e ON c.id = e.course_id GROUP BY c.id, c.title ORDER BY enrolled_count DESC, c.title ASC;",
+      "hints": [
+        "Use LEFT JOIN enrolments e ON c.id = e.course_id",
+        "GROUP BY c.id, c.title"
       ]
     },
     {
@@ -249,58 +515,6 @@
       ]
     },
     {
-      "id": "chal_7",
-      "difficulty": "Beginner",
-      "title": "Affordable Store Products",
-      "database": "ecommerce",
-      "description": "Find all products priced under 2000 cents ($20.00). Return name and price_cents ordered from lowest price to highest.",
-      "starterSql": "SELECT name, price_cents FROM products WHERE ...",
-      "solutionSql": "SELECT name, price_cents FROM products WHERE price_cents < 2000 ORDER BY price_cents ASC;",
-      "hints": [
-        "Use WHERE price_cents < 2000",
-        "Sort with ORDER BY price_cents ASC"
-      ]
-    },
-    {
-      "id": "chal_8",
-      "difficulty": "Beginner",
-      "title": "Top-Level Managers",
-      "database": "employee_management",
-      "description": "Find all employees who do not report to any manager (manager_id IS NULL). Return id, name, and salary ordered by salary descending.",
-      "starterSql": "SELECT id, name, salary FROM employees WHERE ...",
-      "solutionSql": "SELECT id, name, salary FROM employees WHERE manager_id IS NULL ORDER BY salary DESC;",
-      "hints": [
-        "Use IS NULL (not = NULL) to check manager_id",
-        "Sort by salary DESC"
-      ]
-    },
-    {
-      "id": "chal_9",
-      "difficulty": "Intermediate",
-      "title": "Department Headcount & Average Salary",
-      "database": "employee_management",
-      "description": "For every department (including departments with zero employees), return department name, headcount, and average salary rounded to 2 decimal places. Order by headcount descending, then department name ascending.",
-      "starterSql": "SELECT d.name, COUNT(e.id) AS headcount, ROUND(AVG(e.salary), 2) AS avg_salary FROM departments d ...",
-      "solutionSql": "SELECT d.name, COUNT(e.id) AS headcount, ROUND(AVG(e.salary), 2) AS avg_salary FROM departments d LEFT JOIN employees e ON d.id = e.department_id GROUP BY d.id, d.name ORDER BY headcount DESC, d.name ASC;",
-      "hints": [
-        "Use LEFT JOIN so departments without employees are included",
-        "Use COUNT(e.id) instead of COUNT(*) so empty departments show 0"
-      ]
-    },
-    {
-      "id": "chal_10",
-      "difficulty": "Intermediate",
-      "title": "Books and Their Authors",
-      "database": "library_management",
-      "description": "Return each book's title alongside its author's name (aliased as author_name), sorted alphabetically by book title.",
-      "starterSql": "SELECT b.title, a.name AS author_name FROM books b ...",
-      "solutionSql": "SELECT b.title, a.name AS author_name FROM books b INNER JOIN authors a ON b.author_id = a.id ORDER BY b.title ASC;",
-      "hints": [
-        "Join books with authors on b.author_id = a.id",
-        "Sort by b.title ASC"
-      ]
-    },
-    {
       "id": "chal_11",
       "difficulty": "Advanced",
       "title": "Unenrolled Students",
@@ -324,6 +538,32 @@
       "hints": [
         "Compare salary > (SELECT AVG(salary) FROM employees)",
         "Order by salary DESC"
+      ]
+    },
+    {
+      "id": "chal_19",
+      "difficulty": "Advanced",
+      "title": "Department Salary Ranking (Window)",
+      "database": "employee_management",
+      "description": "Rank employees within their own department by salary descending using RANK(). Return employee name, department_name, salary, and dept_rank ordered by department_name ascending, dept_rank ascending.",
+      "starterSql": "SELECT e.name, d.name AS department_name, e.salary, RANK() OVER (...) AS dept_rank FROM employees e ...",
+      "solutionSql": "SELECT e.name, d.name AS department_name, e.salary, RANK() OVER (PARTITION BY e.department_id ORDER BY e.salary DESC) AS dept_rank FROM employees e INNER JOIN departments d ON e.department_id = d.id ORDER BY d.name ASC, dept_rank ASC;",
+      "hints": [
+        "Use RANK() OVER (PARTITION BY e.department_id ORDER BY e.salary DESC)",
+        "Join departments d ON e.department_id = d.id"
+      ]
+    },
+    {
+      "id": "chal_20",
+      "difficulty": "Advanced",
+      "title": "Authors With No Open Loans",
+      "database": "library_management",
+      "description": "Find all authors who currently have zero unreturned (open) book loans using NOT EXISTS. Return author id and name ordered by id ascending.",
+      "starterSql": "SELECT a.id, a.name FROM authors a WHERE NOT EXISTS (...)",
+      "solutionSql": "SELECT a.id, a.name FROM authors a WHERE NOT EXISTS (SELECT 1 FROM books b INNER JOIN loans l ON b.id = l.book_id WHERE b.author_id = a.id AND l.returned_on IS NULL) ORDER BY a.id ASC;",
+      "hints": [
+        "Inside NOT EXISTS, join books and loans where b.author_id = a.id AND l.returned_on IS NULL",
+        "Order by a.id ASC"
       ]
     }
   ]
