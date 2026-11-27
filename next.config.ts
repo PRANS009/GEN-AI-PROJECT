@@ -15,6 +15,7 @@ const config: NextConfig = {
     "/api/preview": sqliteTraceFiles,
     "/api/v1/execute": sqliteTraceFiles,
     "/api/v1/challenges/submit": sqliteTraceFiles,
+    "/api/v1/lessons/check": sqliteTraceFiles,
   },
   async headers() {
     return [

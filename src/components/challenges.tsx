@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import rawCurriculum from "../../content/curriculum.json";
+import { SchemaTablesPreview } from "@/components/schema-preview";
 import {
   Trophy,
   CheckCircle2,
@@ -170,6 +171,9 @@ export function ChallengesView({
             </h3>
             <p className="text-sm text-[var(--ink)] leading-relaxed">{activeChallenge.description}</p>
           </div>
+
+          {/* Practice Database Tables */}
+          <SchemaTablesPreview databaseId={activeChallenge.database} />
 
           {/* Hint toggle */}
           <div className="flex items-center justify-between text-xs">

@@ -88,3 +88,12 @@ test("all 12 curriculum challenges execute and pass their reference solutions", 
     assert.equal(res.passed, true, `Challenge ${ch.id} failed self-check: ${res.feedback}`);
   }
 });
+
+test("all 9 curriculum lessons execute and pass their reference solutions", async () => {
+  const lessons = curriculum.modules.flatMap((m) => m.lessons);
+  assert.equal(lessons.length, 9);
+  for (const lesson of lessons) {
+    const res = await evaluateChallenge(lesson.database, lesson.solutionSql, lesson.solutionSql);
+    assert.equal(res.passed, true, `Lesson ${lesson.id} failed self-check: ${res.feedback}`);
+  }
+});

@@ -123,14 +123,14 @@
           "database": "ecommerce",
           "concept": "Common Table Expressions (CTEs) define temporary named result sets that can be referenced within a SELECT, INSERT, UPDATE, or DELETE statement.",
           "syntax": "WITH cte_name AS (SELECT ...) SELECT * FROM cte_name;",
-          "example": "WITH HighSpenders AS (SELECT customer_id, SUM(total_cents) as spent FROM orders GROUP BY customer_id) SELECT * FROM HighSpenders WHERE spent > 50000;",
-          "expectedOutput": "Customers who have spent more than $500 total.",
-          "exercisePrompt": "Create a CTE to calculate total order revenue per customer.",
-          "starterSql": "WITH CustomerRevenue AS (SELECT customer_id, SUM(total_cents) as revenue FROM orders GROUP BY customer_id) SELECT * FROM CustomerRevenue;",
-          "solutionSql": "WITH CustomerRevenue AS (SELECT customer_id, SUM(total_cents) as revenue FROM orders GROUP BY customer_id) SELECT * FROM CustomerRevenue;",
+          "example": "WITH OrderTotals AS (SELECT order_id, SUM(quantity * unit_price_cents) AS total_cents FROM order_items GROUP BY order_id) SELECT * FROM OrderTotals WHERE total_cents > 1000;",
+          "expectedOutput": "Orders whose line-item total exceeds 1000 cents.",
+          "exercisePrompt": "Create a CTE named OrderTotals to calculate total_cents per order_id from order_items and select all rows from it.",
+          "starterSql": "WITH OrderTotals AS (\n  SELECT order_id, SUM(quantity * unit_price_cents) AS total_cents\n  FROM order_items\n  GROUP BY order_id\n)\nSELECT * FROM OrderTotals;",
+          "solutionSql": "WITH OrderTotals AS (SELECT order_id, SUM(quantity * unit_price_cents) AS total_cents FROM order_items GROUP BY order_id) SELECT * FROM OrderTotals;",
           "hints": [
-            "Start with WITH CustomerRevenue AS (...)",
-            "Query the CTE with SELECT * FROM CustomerRevenue;"
+            "Start with WITH OrderTotals AS (...)",
+            "Query the CTE with SELECT * FROM OrderTotals;"
           ]
         },
         {
@@ -154,13 +154,13 @@
           "database": "ecommerce",
           "concept": "Transactions bundle multiple database operations into an atomic unit with COMMIT and ROLLBACK.",
           "syntax": "BEGIN TRANSACTION; UPDATE ...; INSERT ...; COMMIT;",
-          "example": "BEGIN TRANSACTION; UPDATE products SET stock_quantity = stock_quantity - 1 WHERE id = 1; COMMIT;",
-          "expectedOutput": "Stock level updated atomically.",
-          "exercisePrompt": "Inspect product inventory and simulate atomic stock verification.",
-          "starterSql": "SELECT id, title, stock_quantity FROM products WHERE stock_quantity > 0;",
-          "solutionSql": "SELECT id, title, stock_quantity FROM products WHERE stock_quantity > 0;",
+          "example": "BEGIN TRANSACTION; UPDATE products SET price_cents = price_cents + 100 WHERE id = 1; COMMIT;",
+          "expectedOutput": "Product price updated atomically.",
+          "exercisePrompt": "Select id, name, and price_cents from products where price_cents > 0 ordered by id.",
+          "starterSql": "SELECT id, name, price_cents FROM products WHERE price_cents > 0 ORDER BY id;",
+          "solutionSql": "SELECT id, name, price_cents FROM products WHERE price_cents > 0 ORDER BY id;",
           "hints": [
-            "Verify product stock before executing checkout transactions."
+            "Select id, name, price_cents from products."
           ]
         }
       ]

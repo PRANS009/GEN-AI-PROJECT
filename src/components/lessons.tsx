@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import rawCurriculum from "../../content/curriculum.json";
+import { SchemaTablesPreview } from "@/components/schema-preview";
 import {
   GraduationCap,
   CheckCircle2,
@@ -10,7 +11,16 @@ import {
   Lightbulb,
   ArrowRight,
   Code2,
+  AlertCircle,
 } from "lucide-react";
+
+interface LessonCheckResult {
+  passed?: boolean;
+  feedback?: string;
+  studentResult?: { columns: string[]; rows: (number | string | null)[][]; count: number };
+  expectedResult?: { columns: string[]; rows: (number | string | null)[][]; count: number };
+  error?: string;
+}
 
 export function LessonsView({
   initialLessonId = "lesson_1",
@@ -24,11 +34,8 @@ export function LessonsView({
   const [activeLessonId, setActiveLessonId] = useState(initialLessonId);
   const [completed, setCompleted] = useState<string[]>(initialCompleted);
   const [exerciseSql, setExerciseSql] = useState("");
-  const [runResult, setRunResult] = useState<{
-    columns?: string[];
-    rows?: (number | string | null)[][];
-    error?: string;
-  } | null>(null);
+  const [isChecking, setIsChecking] = useState(false);
+  const [runResult, setRunResult] = useState<LessonCheckResult | null>(null);
   const [showHint, setShowHint] = useState(false);
 
   const allLessons = rawCurriculum.modules.flatMap((m) => m.lessons);
@@ -57,31 +64,26 @@ export function LessonsView({
   async function handleRunExercise() {
     const sqlToRun = exerciseSql.trim() || activeLesson.starterSql;
     setRunResult(null);
+    setIsChecking(true);
     try {
-      const res = await fetch("/api/v1/execute", {
+      const res = await fetch("/api/v1/lessons/check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ database: activeLesson.database, sql: sqlToRun }),
+        body: JSON.stringify({ lessonId: activeLesson.id, sql: sqlToRun }),
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
         setRunResult({ error: data.error?.message || "Execution error" });
       } else {
-        setRunResult({ columns: data.data.columns, rows: data.data.rows });
-        if (!completed.includes(activeLesson.id)) {
+        setRunResult(data.data);
+        if (data.data.passed && !completed.includes(activeLesson.id)) {
           setCompleted((prev) => [...prev, activeLesson.id]);
-          void fetch("/api/v1/lessons/complete", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              lessonId: activeLesson.id,
-              database: activeLesson.database,
-            }),
-          });
         }
       }
     } catch {
       setRunResult({ error: "Could not execute query" });
+    } finally {
+      setIsChecking(false);
     }
   }
 
@@ -178,6 +180,9 @@ export function LessonsView({
             <p className="text-xs text-[var(--muted)] italic">Expected: {activeLesson.expectedOutput}</p>
           </div>
 
+          {/* Practice Database Tables */}
+          <SchemaTablesPreview databaseId={activeLesson.database} />
+
           {/* Interactive Exercise */}
           <div className="rounded-lg border border-[var(--line)] bg-[var(--bg)] p-4 space-y-3">
             <div className="flex items-center justify-between">
@@ -214,26 +219,44 @@ export function LessonsView({
             <div className="flex justify-end">
               <button
                 onClick={handleRunExercise}
-                className="flex items-center gap-2 rounded-lg bg-[#09664f] px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#07523f]"
+                disabled={isChecking}
+                className="flex items-center gap-2 rounded-lg bg-[#09664f] px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#07523f] disabled:opacity-50"
               >
-                <Play className="h-3.5 w-3.5 fill-current" /> Run Exercise
+                <Play className="h-3.5 w-3.5 fill-current" />
+                {isChecking ? "Checking..." : "Run & Check Solution"}
               </button>
             </div>
 
-            {/* Exercise Results */}
+            {/* Exercise Verification Results */}
             {runResult && (
-              <div className="mt-3 border-t border-[var(--line)] pt-3">
+              <div className="mt-3 border-t border-[var(--line)] pt-3 space-y-3">
                 {runResult.error ? (
-                  <div className="rounded bg-red-50 dark:bg-red-950/40 border border-red-300 dark:border-red-800 p-2 text-xs text-red-800 dark:text-red-300 font-mono">
+                  <div className="rounded bg-red-50 dark:bg-red-950/40 border border-red-300 dark:border-red-800 p-2.5 text-xs text-red-800 dark:text-red-300 font-mono">
                     {runResult.error}
                   </div>
                 ) : (
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                        ✔ Exercise Executed Successfully!
+                  <div
+                    className={`rounded-lg border p-3 text-xs space-y-3 ${
+                      runResult.passed
+                        ? "border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200"
+                        : "border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-200"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="flex items-center gap-1.5 font-semibold">
+                        {runResult.passed ? (
+                          <>
+                            <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                            <span>Solution Matched!</span>
+                          </>
+                        ) : (
+                          <>
+                            <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
+                            <span>Output Did Not Match Solution</span>
+                          </>
+                        )}
                       </span>
-                      {nextLesson && (
+                      {runResult.passed && nextLesson && (
                         <button
                           onClick={() => selectLesson(nextLesson)}
                           className="inline-flex items-center gap-1 rounded bg-[#09664f] px-3 py-1 text-xs font-semibold text-white hover:bg-[#07523f]"
@@ -242,30 +265,38 @@ export function LessonsView({
                         </button>
                       )}
                     </div>
-                    <div className="overflow-x-auto max-h-40 rounded border border-[var(--line)] bg-[var(--surface)] p-2">
-                      <table className="w-full text-left font-mono text-xs">
-                        <thead>
-                          <tr className="border-b border-[var(--line)] text-[var(--muted)]">
-                            {runResult.columns?.map((c) => (
-                              <th key={c} className="pr-3 pb-1">
-                                {c}
-                              </th>
+                    {runResult.feedback && <p>{runResult.feedback}</p>}
+
+                    {runResult.studentResult && runResult.expectedResult && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-[var(--line)]">
+                        <div>
+                          <span className="font-mono text-[10px] font-semibold block mb-1">
+                            Your Output ({runResult.studentResult.count} rows)
+                          </span>
+                          <div className="overflow-x-auto max-h-32 rounded bg-[var(--surface)] border border-[var(--line)] p-2 font-mono text-[10px] text-[var(--ink)]">
+                            <div className="font-bold border-b border-[var(--line)] pb-1 mb-1">
+                              {runResult.studentResult.columns.join(" | ")}
+                            </div>
+                            {runResult.studentResult.rows.map((r, i) => (
+                              <div key={i}>{r.join(" | ")}</div>
                             ))}
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-[var(--line)] text-[var(--ink)]">
-                          {runResult.rows?.slice(0, 5).map((row, idx) => (
-                            <tr key={idx}>
-                              {row.map((cell, cidx) => (
-                                <td key={cidx} className="pr-3 py-1">
-                                  {String(cell ?? "NULL")}
-                                </td>
-                              ))}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                          </div>
+                        </div>
+                        <div>
+                          <span className="font-mono text-[10px] font-semibold block mb-1">
+                            Expected Solution Output ({runResult.expectedResult.count} rows)
+                          </span>
+                          <div className="overflow-x-auto max-h-32 rounded bg-[var(--surface)] border border-[var(--line)] p-2 font-mono text-[10px] text-[var(--ink)]">
+                            <div className="font-bold border-b border-[var(--line)] pb-1 mb-1">
+                              {runResult.expectedResult.columns.join(" | ")}
+                            </div>
+                            {runResult.expectedResult.rows.map((r, i) => (
+                              <div key={i}>{r.join(" | ")}</div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
