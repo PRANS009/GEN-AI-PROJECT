@@ -99,6 +99,21 @@
           "hints": [
             "Use COUNT(*), ROUND(AVG(marks), 2), and MAX(marks)"
           ]
+        },
+        {
+          "id": "lesson_19",
+          "title": "Conditional Logic with CASE WHEN",
+          "database": "student_management",
+          "concept": "The CASE expression adds if-then-else conditional logic directly inside SQL queries to categorize or label rows.",
+          "syntax": "SELECT col, CASE WHEN cond THEN 'A' ELSE 'B' END AS label FROM table;",
+          "example": "SELECT name, CASE WHEN marks >= 85 THEN 'Honor' ELSE 'Standard' END AS tier FROM students;",
+          "expectedOutput": "Each student labeled as Honor or Standard.",
+          "exercisePrompt": "Select name, marks, and grade ('A' if marks >= 90, 'B' if marks >= 80, else 'C') ordered by marks DESC.",
+          "starterSql": "SELECT name, marks, CASE WHEN marks >= 90 THEN 'A' WHEN marks >= 80 THEN 'B' ELSE 'C' END AS grade FROM students ORDER BY marks DESC;",
+          "solutionSql": "SELECT name, marks, CASE WHEN marks >= 90 THEN 'A' WHEN marks >= 80 THEN 'B' ELSE 'C' END AS grade FROM students ORDER BY marks DESC;",
+          "hints": [
+            "Use CASE WHEN marks >= 90 THEN 'A' WHEN marks >= 80 THEN 'B' ELSE 'C' END AS grade"
+          ]
         }
       ]
     },
@@ -198,6 +213,21 @@
           "solutionSql": "SELECT id, name, marks FROM students WHERE marks BETWEEN 80 AND 95 ORDER BY marks DESC;",
           "hints": [
             "Use WHERE marks BETWEEN 80 AND 95"
+          ]
+        },
+        {
+          "id": "lesson_20",
+          "title": "Handling NULL Values with COALESCE",
+          "database": "library_management",
+          "concept": "COALESCE(val, fallback) returns the first non-NULL expression in its argument list, making it ideal for formatting missing dates or optional fields.",
+          "syntax": "SELECT COALESCE(nullable_col, 'Default') FROM table;",
+          "example": "SELECT id, COALESCE(returned_on, 'Active') AS status FROM loans;",
+          "expectedOutput": "Loan IDs with 'Active' shown where returned_on is NULL.",
+          "exercisePrompt": "Select id, book_id, and COALESCE(returned_on, 'Not Returned') AS return_status from loans ordered by id ASC.",
+          "starterSql": "SELECT id, book_id, COALESCE(returned_on, 'Not Returned') AS return_status FROM loans ORDER BY id ASC;",
+          "solutionSql": "SELECT id, book_id, COALESCE(returned_on, 'Not Returned') AS return_status FROM loans ORDER BY id ASC;",
+          "hints": [
+            "Use COALESCE(returned_on, 'Not Returned') AS return_status"
           ]
         }
       ]
@@ -564,6 +594,67 @@
       "hints": [
         "Inside NOT EXISTS, join books and loans where b.author_id = a.id AND l.returned_on IS NULL",
         "Order by a.id ASC"
+      ]
+    },
+    {
+      "id": "chal_21",
+      "difficulty": "Beginner",
+      "title": "Student Standing Classification",
+      "database": "student_management",
+      "description": "Classify each student using CASE: 'Distinction' if marks >= 90, otherwise 'Merit'. Return name, marks, and standing ordered by marks descending.",
+      "starterSql": "SELECT name, marks, CASE WHEN ... END AS standing FROM students ORDER BY ...",
+      "solutionSql": "SELECT name, marks, CASE WHEN marks >= 90 THEN 'Distinction' ELSE 'Merit' END AS standing FROM students ORDER BY marks DESC;",
+      "hints": [
+        "Use CASE WHEN marks >= 90 THEN 'Distinction' ELSE 'Merit' END AS standing"
+      ]
+    },
+    {
+      "id": "chal_22",
+      "difficulty": "Beginner",
+      "title": "Alphabetical Customer Directory",
+      "database": "ecommerce",
+      "description": "Retrieve all customers' id and name sorted alphabetically by name.",
+      "starterSql": "SELECT id, name FROM customers ORDER BY ...",
+      "solutionSql": "SELECT id, name FROM customers ORDER BY name ASC;",
+      "hints": [
+        "Order by name ASC"
+      ]
+    },
+    {
+      "id": "chal_23",
+      "difficulty": "Intermediate",
+      "title": "Loan Return Status Report",
+      "database": "library_management",
+      "description": "List each loan id, book title, and return status using COALESCE(returned_on, 'Open') aliased as status, ordered by loan id ascending.",
+      "starterSql": "SELECT l.id, b.title, COALESCE(l.returned_on, 'Open') AS status FROM loans l ...",
+      "solutionSql": "SELECT l.id, b.title, COALESCE(l.returned_on, 'Open') AS status FROM loans l INNER JOIN books b ON l.book_id = b.id ORDER BY l.id ASC;",
+      "hints": [
+        "Join loans l with books b ON l.book_id = b.id",
+        "Order by l.id ASC"
+      ]
+    },
+    {
+      "id": "chal_24",
+      "difficulty": "Intermediate",
+      "title": "Order Line-Item Totals",
+      "database": "ecommerce",
+      "description": "For each line item, return order_id, product name, and line_total_cents (quantity * unit_price_cents) ordered by line_total_cents descending.",
+      "starterSql": "SELECT oi.order_id, p.name, (oi.quantity * oi.unit_price_cents) AS line_total_cents FROM order_items oi ...",
+      "solutionSql": "SELECT oi.order_id, p.name, (oi.quantity * oi.unit_price_cents) AS line_total_cents FROM order_items oi INNER JOIN products p ON oi.product_id = p.id ORDER BY line_total_cents DESC;",
+      "hints": [
+        "Join order_items oi with products p ON oi.product_id = p.id"
+      ]
+    },
+    {
+      "id": "chal_25",
+      "difficulty": "Advanced",
+      "title": "Company Salary Dense Ranking",
+      "database": "employee_management",
+      "description": "Rank all employees by salary descending using DENSE_RANK() OVER (ORDER BY salary DESC). Return name, salary, and salary_rank ordered by salary descending, then name ascending.",
+      "starterSql": "SELECT name, salary, DENSE_RANK() OVER (...) AS salary_rank FROM employees ...",
+      "solutionSql": "SELECT name, salary, DENSE_RANK() OVER (ORDER BY salary DESC) AS salary_rank FROM employees ORDER BY salary DESC, name ASC;",
+      "hints": [
+        "Use DENSE_RANK() OVER (ORDER BY salary DESC) AS salary_rank"
       ]
     }
   ]
